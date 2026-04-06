@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Instagram, Facebook, Twitter, Mail, Phone } from "lucide-react";
+import { Instagram, Facebook, Mail, Phone } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Footer = () => {
@@ -13,8 +13,11 @@ const Footer = () => {
             Handcrafted bridal jewelry for your most cherished moments. Each piece is made with love and attention to detail.
           </p>
           <div className="flex gap-3">
-            {[Instagram, Facebook, Twitter].map((Icon, i) => (
-              <a key={i} href="#" className="w-9 h-9 rounded-full border border-primary-foreground/20 flex items-center justify-center hover:border-gold hover:text-gold transition-colors">
+            {[
+              { Icon: Instagram, href: "#" },
+              { Icon: Facebook, href: "https://www.facebook.com/profile.php?id=100093316487849&ref=NONE_xav_ig_profile_page_web#" },
+            ].map(({ Icon, href }, i) => (
+              <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-primary-foreground/20 flex items-center justify-center hover:border-gold hover:text-gold transition-colors">
                 <Icon size={16} />
               </a>
             ))}
@@ -50,7 +53,7 @@ const Footer = () => {
         <div>
           <h4 className="font-heading text-lg font-medium text-primary-foreground mb-4">Contact</h4>
           <ul className="space-y-3 text-sm font-body">
-            <li className="flex items-center gap-2"><Mail size={14} className="text-gold" /> hello@uniquejewelrystudio.com</li>
+            <li className="flex items-center gap-2"><Mail size={14} className="text-gold" /> uniquejewellerystudio@gmail.com</li>
             <li className="flex items-center gap-2"><Phone size={14} className="text-gold" /> +91 98765 43210</li>
           </ul>
           <h4 className="font-heading text-lg font-medium text-primary-foreground mt-6 mb-3">Policies</h4>
