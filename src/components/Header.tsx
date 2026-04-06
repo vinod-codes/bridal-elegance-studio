@@ -27,7 +27,8 @@ const Header = () => {
         </button>
 
         {/* Logo */}
-        <Link to="/" className="flex-shrink-0">
+        <Link to="/" className="flex-shrink-0 flex items-center gap-3">
+          <img src="/logo.png" alt="Unique Jewelry Studio" className="h-12 md:h-16 py-1 object-contain" />
           <span className="font-heading text-2xl md:text-3xl font-medium tracking-widest text-[#d4af37] uppercase">UJS</span>
         </Link>
 

@@ -6,8 +6,9 @@ const Footer = () => {
       <div className="container py-16 grid grid-cols-1 md:grid-cols-4 gap-10">
         {/* Brand */}
         <div className="space-y-4">
-          <Link to="/">
-            <span className="font-heading text-3xl font-medium tracking-widest text-gold uppercase">UJS</span>
+          <Link to="/" className="inline-flex items-center gap-4">
+            <img src="/logo.png" alt="Unique Jewelry Studio" className="h-20 md:h-24 object-contain" />
+            <span className="font-heading text-4xl font-medium tracking-widest text-gold uppercase">UJS</span>
           </Link>
           <p className="text-sm font-body leading-relaxed text-primary-foreground/60">
             Handcrafted bridal jewelry for your most cherished moments. Each piece is made with love and attention to detail.
