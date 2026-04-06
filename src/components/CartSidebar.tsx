@@ -8,8 +8,8 @@ const CartSidebar = () => {
 
   return (
     <>
-      <div className="fixed inset-0 bg-foreground/30 z-50" onClick={closeCart} />
-      <div className="fixed top-0 right-0 h-full w-full max-w-md bg-background z-50 shadow-2xl animate-slide-in-right flex flex-col">
+      <div className="fixed inset-0 bg-foreground/30 z-[60]" onClick={closeCart} />
+      <div className="fixed top-0 right-0 h-full w-full max-w-md bg-background z-[60] shadow-2xl animate-slide-in-right flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="font-heading text-2xl font-semibold">Your Cart</h2>
           <button onClick={closeCart} className="p-1 text-muted-foreground hover:text-foreground">

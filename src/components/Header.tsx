@@ -2,15 +2,10 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Search, User, ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import logo from "@/assets/logo.png";
 
 const navLinks = [
   { to: "/", label: "Home" },
   { to: "/shop", label: "Shop" },
-  { to: "/shop?category=haldi", label: "Haldi Jewelry" },
-  { to: "/shop?category=mehndi", label: "Mehndi Jewelry" },
-  { to: "/shop?category=bridal", label: "Bridal Sets" },
-  { to: "/shop?category=combo", label: "Custom Orders" },
   { to: "/about", label: "About" },
 ];
 
@@ -33,7 +28,7 @@ const Header = () => {
 
         {/* Logo */}
         <Link to="/" className="flex-shrink-0">
-          <img src={logo} alt="Unique Jewelry Studio" className="h-10 md:h-14 w-auto" width={800} height={512} />
+          <span className="font-heading text-2xl md:text-3xl font-medium tracking-widest text-[#d4af37] uppercase">UJS</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -42,9 +37,8 @@ const Header = () => {
             <Link
               key={link.label}
               to={link.to}
-              className={`text-sm font-body tracking-wide transition-colors hover:text-gold ${
-                location.pathname === link.to ? "text-gold font-medium" : "text-foreground"
-              }`}
+              className={`text-sm font-body tracking-wide transition-colors hover:text-gold ${location.pathname === link.to ? "text-gold font-medium" : "text-foreground"
+                }`}
             >
               {link.label}
             </Link>

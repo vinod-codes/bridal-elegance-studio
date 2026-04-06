@@ -4,7 +4,8 @@ import HeroSection from "@/components/HeroSection";
 import CategorySection from "@/components/CategorySection";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import TrustBadges from "@/components/TrustBadges";
-import NewsletterSection from "@/components/NewsletterSection";
+import GoogleReviews from "@/components/GoogleReviews";
+import VideoGallery from "@/components/VideoGallery";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -17,7 +18,8 @@ const Index = () => {
         <CategorySection />
         <FeaturedProducts />
         <TrustBadges />
-        <NewsletterSection />
+        <VideoGallery />
+        <GoogleReviews />
       </main>
       <Footer />
     </div>

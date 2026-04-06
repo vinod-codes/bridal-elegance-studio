@@ -10,7 +10,9 @@ import Shop from "./pages/Shop.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
 import About from "./pages/About.tsx";
 import NotFound from "./pages/NotFound.tsx";
-
+import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
+import RefundPolicy from "./pages/RefundPolicy.tsx";
+import ShippingPolicy from "./pages/ShippingPolicy.tsx";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -27,6 +29,9 @@ const App = () => (
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/refund" element={<RefundPolicy />} />
+            <Route path="/shipping" element={<ShippingPolicy />} />
           </Routes>
         </BrowserRouter>
       </CartProvider>

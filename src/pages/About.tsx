@@ -2,7 +2,6 @@ import AnnouncementBar from "@/components/AnnouncementBar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import heroBridal from "@/assets/hero-bridal.jpg";
-
 const About = () => {
   return (
     <div className="min-h-screen">
@@ -28,6 +27,21 @@ const About = () => {
           <p className="font-body text-muted-foreground leading-relaxed">
             From our studio to your special day, Unique Jewelry Studio is honored to be part of your most cherished moments.
           </p>
+        </section>
+
+        <section className="container py-16 mx-auto">
+          <h2 className="font-heading text-2xl md:text-3xl font-medium text-center mb-10">Visit Our Studio</h2>
+          <div className="w-full h-96 bg-muted relative rounded-lg overflow-hidden shadow-lg border border-border">
+            <iframe
+              src="https://maps.google.com/maps?q=18.737792,73.0954209&z=15&output=embed"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
         </section>
       </main>
       <Footer />

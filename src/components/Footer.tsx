@@ -1,14 +1,14 @@
 import { Link } from "react-router-dom";
 import { Instagram, Facebook, Mail, Phone } from "lucide-react";
-import logo from "@/assets/logo.png";
-
 const Footer = () => {
   return (
     <footer className="bg-foreground text-primary-foreground/80">
       <div className="container py-16 grid grid-cols-1 md:grid-cols-4 gap-10">
         {/* Brand */}
         <div className="space-y-4">
-          <img src={logo} alt="Unique Jewelry Studio" className="h-10 brightness-200" width={800} height={512} />
+          <Link to="/">
+            <span className="font-heading text-3xl font-medium tracking-widest text-gold uppercase">UJS</span>
+          </Link>
           <p className="text-sm font-body leading-relaxed text-primary-foreground/60">
             Handcrafted bridal jewelry for your most cherished moments. Each piece is made with love and attention to detail.
           </p>
@@ -58,8 +58,12 @@ const Footer = () => {
           </ul>
           <h4 className="font-heading text-lg font-medium text-primary-foreground mt-6 mb-3">Policies</h4>
           <ul className="space-y-2 text-sm font-body">
-            {["Privacy Policy", "Refund Policy", "Shipping Policy"].map((p) => (
-              <li key={p}><a href="#" className="hover:text-gold transition-colors">{p}</a></li>
+            {[
+              { label: "Privacy Policy", path: "/privacy" },
+              { label: "Refund Policy", path: "/refund" },
+              { label: "Shipping Policy", path: "/shipping" }
+            ].map((p) => (
+              <li key={p.label}><Link to={p.path} className="hover:text-gold transition-colors">{p.label}</Link></li>
             ))}
           </ul>
         </div>
