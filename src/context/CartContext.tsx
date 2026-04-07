@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
-import type { Product } from "@/data/products";
+import type { FirestoreProduct } from "@/hooks/useProducts";
+
+// Re-export for convenience so existing imports still work
+export type Product = FirestoreProduct;
 
 interface CartItem {
   product: Product;
@@ -14,6 +17,7 @@ interface CartContextType {
   updateQuantity: (productId: string, quantity: number) => void;
   toggleCart: () => void;
   closeCart: () => void;
+  clearCart: () => void;
   totalItems: number;
   totalPrice: number;
 }
@@ -53,13 +57,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const toggleCart = useCallback(() => setIsOpen((p) => !p), []);
   const closeCart = useCallback(() => setIsOpen(false), []);
+  const clearCart = useCallback(() => setItems([]), []);
 
   const totalItems = items.reduce((s, i) => s + i.quantity, 0);
   const totalPrice = items.reduce((s, i) => s + i.product.price * i.quantity, 0);
 
   return (
     <CartContext.Provider
-      value={{ items, isOpen, addToCart, removeFromCart, updateQuantity, toggleCart, closeCart, totalItems, totalPrice }}
+      value={{ items, isOpen, addToCart, removeFromCart, updateQuantity, toggleCart, closeCart, clearCart, totalItems, totalPrice }}
     >
       {children}
     </CartContext.Provider>

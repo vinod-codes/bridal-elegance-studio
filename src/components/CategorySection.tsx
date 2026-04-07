@@ -4,11 +4,12 @@ import catMehndi from "@/assets/cat-mehndi.jpg";
 import catBridal from "@/assets/cat-bridal.jpg";
 import catCombos from "@/assets/cat-combos.jpg";
 
+// Slugs match the category values stored by admin panel in Firestore
 const cats = [
-  { image: catHaldi, label: "Haldi Jewelry", slug: "haldi" },
-  { image: catMehndi, label: "Mehndi Jewelry", slug: "mehndi" },
-  { image: catBridal, label: "Bridal Sets", slug: "bridal" },
-  { image: catCombos, label: "Combos", slug: "combo" },
+  { image: catHaldi, label: "Necklaces", slug: "Necklaces" },
+  { image: catMehndi, label: "Earrings", slug: "Earrings" },
+  { image: catBridal, label: "Rings", slug: "Rings" },
+  { image: catCombos, label: "Bracelets", slug: "Bracelets" },
 ];
 
 const CategorySection = () => {

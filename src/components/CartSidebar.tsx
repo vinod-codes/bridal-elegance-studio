@@ -1,8 +1,54 @@
 import { X, Plus, Minus, Trash2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { db } from "../config/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { useState } from "react";
 
 const CartSidebar = () => {
-  const { items, isOpen, closeCart, removeFromCart, updateQuantity, totalPrice } = useCart();
+  const { items, isOpen, closeCart, removeFromCart, updateQuantity, totalPrice, clearCart } = useCart();
+  const { user, profile } = useAuth();
+  const [placing, setPlacing] = useState(false);
+  const navigate = useNavigate();
+
+  const handleCheckout = async () => {
+    if (!user) {
+      closeCart();
+      toast.error("Please sign in to place an order");
+      navigate("/auth");
+      return;
+    }
+
+    setPlacing(true);
+    try {
+      await addDoc(collection(db, "orders"), {
+        userId: user.uid,
+        userEmail: user.email,
+        userName: profile?.name || user.displayName || user.email,
+        items: items.map(({ product, quantity }) => ({
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          quantity,
+        })),
+        totalAmount: totalPrice,
+        status: "pending",
+        createdAt: serverTimestamp(),
+      });
+      clearCart();
+      closeCart();
+      toast.success("🎉 Order placed! View your order history.", {
+        action: { label: "My Orders", onClick: () => navigate("/orders") },
+      });
+    } catch (err) {
+      toast.error("Failed to place order. Please try again.");
+    } finally {
+      setPlacing(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -56,8 +102,12 @@ const CartSidebar = () => {
                   Add ₹{999 - totalPrice} more for free shipping!
                 </p>
               )}
-              <button className="w-full bg-gold text-primary-foreground py-3 rounded-sm font-body font-medium tracking-wide uppercase btn-glow">
-                Checkout
+              <button
+                onClick={handleCheckout}
+                disabled={placing}
+                className="w-full bg-gold text-primary-foreground py-3 rounded-sm font-body font-medium tracking-wide uppercase btn-glow disabled:opacity-70"
+              >
+                {placing ? "Placing Order..." : "Place Order"}
               </button>
             </div>
           </>

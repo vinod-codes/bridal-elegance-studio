@@ -1,21 +1,27 @@
 import { ShoppingBag } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { Product } from "@/data/products";
+import type { FirestoreProduct } from "@/hooks/useProducts";
 import { useCart } from "@/context/CartContext";
 
 interface Props {
-  product: Product;
+  product: FirestoreProduct;
 }
 
 const ProductCard = ({ product }: Props) => {
   const { addToCart } = useCart();
-  const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+  const displayPrice = product.discountPrice ?? product.price;
+  const originalPrice = product.discountPrice ? product.price : null;
+  const discount = originalPrice && product.discountPrice 
+      ? Math.round(((originalPrice - product.discountPrice) / originalPrice) * 100)
+      : 0;
+  
+  const displayImage = product.images?.[0] || product.image || "/placeholder.jpg";
 
   return (
     <div className="group hover-lift rounded-lg overflow-hidden bg-card">
       <Link to={`/product/${product.id}`} className="block relative aspect-square overflow-hidden">
         <img
-          src={product.image}
+          src={displayImage}
           alt={product.name}
           loading="lazy"
           width={640}
@@ -32,6 +38,11 @@ const ProductCard = ({ product }: Props) => {
             -{discount}%
           </span>
         )}
+        {product.stock === 0 && (
+          <div className="absolute inset-0 bg-foreground/40 flex items-center justify-center">
+            <span className="text-white font-body text-sm font-medium tracking-widest uppercase">Out of Stock</span>
+          </div>
+        )}
       </Link>
       <div className="p-4">
         <Link to={`/product/${product.id}`}>
@@ -40,17 +51,18 @@ const ProductCard = ({ product }: Props) => {
           </h3>
         </Link>
         <div className="flex items-center gap-2 mb-3">
-          <span className="font-body font-semibold text-foreground">₹{product.price}</span>
-          {product.originalPrice > product.price && (
-            <span className="font-body text-sm text-muted-foreground line-through">₹{product.originalPrice}</span>
+          <span className="font-body font-semibold text-foreground">₹{displayPrice}</span>
+          {originalPrice && (
+            <span className="font-body text-sm text-muted-foreground line-through">₹{originalPrice}</span>
           )}
         </div>
         <button
           onClick={() => addToCart(product)}
-          className="w-full flex items-center justify-center gap-2 bg-gold text-primary-foreground py-2.5 rounded-sm text-sm font-body font-medium tracking-wide uppercase transition-all hover:opacity-90 btn-glow"
+          disabled={product.stock === 0}
+          className="w-full flex items-center justify-center gap-2 bg-gold text-primary-foreground py-2.5 rounded-sm text-sm font-body font-medium tracking-wide uppercase transition-all hover:opacity-90 btn-glow disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ShoppingBag size={16} />
-          Add to Cart
+          {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
         </button>
       </div>
     </div>

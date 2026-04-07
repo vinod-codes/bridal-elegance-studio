@@ -4,21 +4,34 @@ import AnnouncementBar from "@/components/AnnouncementBar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
-import { products, categories } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 
 type SortOption = "default" | "price-asc" | "price-desc" | "newest";
+
+// These slugs map to the category values stored by the admin panel
+const categories = [
+  { slug: "Necklaces", label: "Necklaces" },
+  { slug: "Rings", label: "Rings" },
+  { slug: "Earrings", label: "Earrings" },
+  { slug: "Bracelets", label: "Bracelets" },
+] as const;
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCategory = searchParams.get("category") || "all";
   const [sort, setSort] = useState<SortOption>("default");
+  const { products, loading } = useProducts();
 
   const filtered = useMemo(() => {
-    let list = activeCategory === "all" ? products : products.filter((p) => p.category === activeCategory);
+    let list = activeCategory === "all"
+      ? products
+      : products.filter((p) => p.category === activeCategory);
+
     if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
     if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
+    // "newest" is already the default order from the hook (ordered by createdAt desc)
     return list;
-  }, [activeCategory, sort]);
+  }, [products, activeCategory, sort]);
 
   return (
     <div className="min-h-screen">
@@ -66,13 +79,21 @@ const Shop = () => {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {filtered.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="aspect-square rounded-lg bg-muted animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {filtered.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
 
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <p className="text-center text-muted-foreground font-body py-16">No products found in this category.</p>
         )}
       </main>
