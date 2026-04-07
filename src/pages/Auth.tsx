@@ -39,7 +39,7 @@ const Auth = () => {
             }
             toast.success('Signed in with Google!');
             navigate('/');
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error('Google Sign-In failed');
         } finally {
             setLoading(false);
@@ -68,8 +68,9 @@ const Auth = () => {
                 toast.success('Account created successfully!');
                 navigate('/');
             }
-        } catch (error: any) {
-            toast.error(error.message || 'Authentication failed');
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Authentication failed";
+            toast.error(message);
         } finally {
             setLoading(false);
         }

@@ -7,6 +7,8 @@ import { CheckCircle, Package, ArrowRight, ShoppingBag } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+import { Timestamp } from "firebase/firestore";
+
 interface OrderItem {
   name: string;
   price: number;
@@ -19,7 +21,7 @@ interface Order {
   status: string;
   totalAmount: number;
   items: OrderItem[];
-  createdAt: any;
+  createdAt: Timestamp;
 }
 
 const statusColor: Record<string, string> = {
@@ -51,15 +53,15 @@ const Orders = () => {
         );
         const snap = await getDocs(q);
         setOrders(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Order)));
-      } catch {
+      } catch (error: unknown) {
         // Fallback without ordering
         try {
           const snap = await getDocs(
             query(collection(db, "orders"), where("userId", "==", user.uid))
           );
           setOrders(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Order)));
-        } catch (e) {
-          console.error("Could not load orders:", e);
+        } catch (fallbackError: unknown) {
+          console.error("Could not load orders:", fallbackError);
         }
       } finally {
         setLoading(false);

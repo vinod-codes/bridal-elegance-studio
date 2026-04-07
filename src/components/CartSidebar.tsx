@@ -43,7 +43,8 @@ const CartSidebar = () => {
       toast.success("🎉 Order placed! View your order history.", {
         action: { label: "My Orders", onClick: () => navigate("/orders") },
       });
-    } catch (err) {
+    } catch (error: unknown) {
+      console.error("Order placement failed:", error);
       toast.error("Failed to place order. Please try again.");
     } finally {
       setPlacing(false);

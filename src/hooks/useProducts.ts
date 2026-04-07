@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs, doc, getDoc, query, orderBy, where } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, query, orderBy, where, Timestamp } from "firebase/firestore";
 import { db } from "@/config/firebase";
 
 // Firestore product shape — must match what admin saves
@@ -17,8 +17,8 @@ export interface FirestoreProduct {
   badge?: string;
   inStock?: boolean;
   isVisible?: boolean;
-  createdAt?: any;
-  updatedAt?: any;
+  createdAt?: Timestamp | null;
+  updatedAt?: Timestamp | null;
 }
 
 /** Fetch ALL products from Firestore, ordered by creation time */
@@ -36,7 +36,7 @@ export function useProducts() {
         if (!cancelled) {
           setProducts(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreProduct)));
         }
-      } catch (err: any) {
+      } catch (error: unknown) {
         // Fallback without ordering if index doesn't exist yet
         try {
           const fallbackQ = query(collection(db, "products"), where("isVisible", "==", true));
@@ -44,8 +44,11 @@ export function useProducts() {
           if (!cancelled) {
             setProducts(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreProduct)));
           }
-        } catch (fallbackErr: any) {
-          if (!cancelled) setError(fallbackErr.message);
+        } catch (fallbackErr: unknown) {
+          if (!cancelled) {
+            const message = fallbackErr instanceof Error ? fallbackErr.message : "An unknown error occurred";
+            setError(message);
+          }
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -76,8 +79,11 @@ export function useProduct(id: string | undefined) {
         if (!cancelled) {
           setProduct(snap.exists() ? ({ id: snap.id, ...snap.data() } as FirestoreProduct) : null);
         }
-      } catch (err: any) {
-        if (!cancelled) setError(err.message);
+      } catch (err: unknown) {
+        if (!cancelled) {
+          const message = err instanceof Error ? err.message : "An unknown error occurred";
+          setError(message);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
