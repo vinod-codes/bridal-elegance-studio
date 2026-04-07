@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import { auth, db } from '../config/firebase';
-import { 
-    signInWithEmailAndPassword, 
-    createUserWithEmailAndPassword, 
-    signOut, 
-    GoogleAuthProvider, 
-    signInWithPopup 
+import {
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithPopup
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Mail, Lock, ChevronRight, Sparkles, User, ArrowLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+
+const GoogleIcon = () => (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z" fill="#EA4335" />
+    </svg>
+);
 
 const Auth = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -26,20 +35,19 @@ const Auth = () => {
         try {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
-            
-            // Register user in Firestore if they don't exist
+
             const userSnap = await getDoc(doc(db, 'users', user.uid));
             if (!userSnap.exists()) {
                 await setDoc(doc(db, 'users', user.uid), {
                     email: user.email,
                     name: user.displayName || 'Guest User',
-                    isAdmin: false, // DEFAULT: Only manual Firestore editing makes an admin
+                    isAdmin: false,
                     createdAt: serverTimestamp()
                 });
             }
             toast.success('Signed in with Google!');
             navigate('/');
-        } catch (error: unknown) {
+        } catch (error: any) {
             toast.error('Google Sign-In failed');
         } finally {
             setLoading(false);
@@ -57,8 +65,7 @@ const Auth = () => {
             } else {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
-                
-                // Create user document in Firestore (default as visitor, NOT admin)
+
                 await setDoc(doc(db, 'users', user.uid), {
                     email: user.email,
                     name: name,
@@ -68,7 +75,7 @@ const Auth = () => {
                 toast.success('Account created successfully!');
                 navigate('/');
             }
-        } catch (error: unknown) {
+        } catch (error: any) {
             const message = error instanceof Error ? error.message : "Authentication failed";
             toast.error(message);
         } finally {
@@ -77,128 +84,161 @@ const Auth = () => {
     };
 
     return (
-        <div className="min-h-screen flex bg-white font-body selection:bg-gold/30">
-            {/* Left Side - Inspiring Visual */}
-            <div className="hidden lg:flex lg:w-1/2 relative bg-black items-center justify-center overflow-hidden">
-                <div className="absolute inset-0">
-                    <img
-                        src="https://images.unsplash.com/photo-1599643478524-fb66f70a0066?q=80&w=2664&auto=format&fit=crop"
-                        alt="Bridal Elegance"
-                        className="w-full h-full object-cover opacity-80 hover:scale-105 transition-transform duration-[20s] ease-in-out"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-                </div>
-                
-                <div className="relative z-10 p-16 flex flex-col justify-end h-full w-full text-white pb-24">
-                    <div className="max-w-xl">
-                        <span className="text-gold text-sm tracking-[0.3em] uppercase font-semibold mb-4 block">
-                            Bridal Elegance Studio
-                        </span>
-                        <h1 className="font-heading text-6xl font-medium tracking-wide mb-6 leading-[1.1] text-white">
-                            Discover <br/>Your <span className="text-gold italic">Shine.</span>
-                        </h1>
-                        <p className="font-body text-lg text-gray-300 leading-relaxed max-w-md">
-                            Join our exclusive collection of timeless bridal jewelry. Immerse yourself in elegance, crafted for the moments that matter most.
-                        </p>
-                    </div>
-                </div>
+        <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden selection:bg-gold/30">
+            {/* Minimalist Background Ambience */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-gold/5 rounded-full blur-[140px]"></div>
+                <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-gold/3 rounded-full blur-[120px]"></div>
+                <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #D4AF37 1px, transparent 0)', backgroundSize: '60px 60px' }}></div>
             </div>
 
-            {/* Right Side - Auth Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center px-6 sm:px-12 lg:px-24 py-20 bg-cream/10">
-                <div className="max-w-md w-full space-y-10">
-                    <div className="text-center lg:text-left pt-10 lg:pt-0">
-                        <h2 className="text-4xl font-heading font-medium text-foreground tracking-wide mb-3">
-                            {isLogin ? 'Welcome Back' : 'Join the Studio'}
-                        </h2>
-                        <p className="text-base text-muted-foreground font-body">
-                            {isLogin ? 'Sign in to access your curated collection.' : 'Create an account to save your favorite pieces.'}
-                        </p>
-                    </div>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="w-full max-w-md z-10"
+            >
+                {/* Branding Section */}
+                <div className="text-center mb-10">
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="mb-8"
+                    >
+                        <img
+                            src="/logo.png"
+                            alt="Logo"
+                            className="h-14 w-auto mx-auto filter brightness-110 drop-shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+                        />
+                    </motion.div>
+                    <h2 className="text-3xl font-heading font-light tracking-tight mb-2">
+                        {isLogin ? 'Sign In' : 'Register'}
+                    </h2>
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-gray-500 font-bold">
+                        {isLogin ? 'Secure Access' : 'Create Identity'}
+                    </p>
+                </div>
 
-                    <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
-                        <div className="space-y-4">
-                            {!isLogin && (
-                                <div className="relative group">
-                                    <User className="absolute left-4 top-3.5 text-muted-foreground group-focus-within:text-gold transition-colors" size={20} />
+                <div className="glass-card bg-white/[0.01] border border-white/5 p-8 rounded-[2rem] shadow-2xl relative group">
+                    {/* Top Accent Line */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/4 h-[1px] bg-gradient-to-r from-transparent via-gold/40 to-transparent transition-all duration-700 group-hover:w-1/2"></div>
+
+                    <form className="space-y-6" onSubmit={handleSubmit}>
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={isLogin ? 'login' : 'signup'}
+                                initial={{ opacity: 0, x: isLogin ? -10 : 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: isLogin ? 10 : -10 }}
+                                transition={{ duration: 0.3 }}
+                                className="space-y-5"
+                            >
+                                {!isLogin && (
+                                    <div className="group relative">
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-gold transition-colors duration-300">
+                                            <User size={18} strokeWidth={1.5} />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            required
+                                            className="w-full bg-white/[0.03] border border-white/5 text-white pl-12 pr-4 py-3.5 rounded-xl focus:outline-none focus:border-gold/30 focus:bg-white/[0.05] transition-all duration-300 placeholder:text-gray-700 text-sm font-light"
+                                            placeholder="Full Name"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                        />
+                                    </div>
+                                )}
+                                <div className="group relative">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-gold transition-colors duration-300">
+                                        <Mail size={18} strokeWidth={1.5} />
+                                    </div>
                                     <input
-                                        type="text"
+                                        type="email"
                                         required
-                                        className="appearance-none block w-full pl-12 pr-4 py-3.5 border border-border placeholder-muted-foreground text-foreground rounded-lg focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold sm:text-sm bg-white shadow-sm transition-all"
-                                        placeholder="Full Name"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
+                                        className="w-full bg-white/[0.03] border border-white/5 text-white pl-12 pr-4 py-3.5 rounded-xl focus:outline-none focus:border-gold/30 focus:bg-white/[0.05] transition-all duration-300 placeholder:text-gray-700 text-sm font-light"
+                                        placeholder="Email Address"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                     />
                                 </div>
+                                <div className="group relative">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-gold transition-colors duration-300">
+                                        <Lock size={18} strokeWidth={1.5} />
+                                    </div>
+                                    <input
+                                        type="password"
+                                        required
+                                        className="w-full bg-white/[0.03] border border-white/5 text-white pl-12 pr-4 py-3.5 rounded-xl focus:outline-none focus:border-gold/30 focus:bg-white/[0.05] transition-all duration-300 placeholder:text-gray-700 text-sm font-light"
+                                        placeholder="Password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                    />
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>
+
+                        <motion.button
+                            whileHover={{ scale: 1.01, boxShadow: '0 0 20px rgba(212,175,55,0.1)' }}
+                            whileTap={{ scale: 0.99 }}
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-4 bg-gold hover:bg-gold-light text-black font-black uppercase tracking-[0.3em] text-[10px] rounded-xl transition-all duration-500 flex items-center justify-center gap-3 disabled:opacity-50"
+                        >
+                            {loading ? (
+                                <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
+                            ) : (
+                                <>
+                                    <span>{isLogin ? 'Access Studio' : 'Create Identity'}</span>
+                                    <ChevronRight size={16} />
+                                </>
                             )}
-                            <div className="relative group">
-                                <Mail className="absolute left-4 top-3.5 text-muted-foreground group-focus-within:text-gold transition-colors" size={20} />
-                                <input
-                                    type="email"
-                                    required
-                                    className="appearance-none block w-full pl-12 pr-4 py-3.5 border border-border placeholder-muted-foreground text-foreground rounded-lg focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold sm:text-sm bg-white shadow-sm transition-all"
-                                    placeholder="Email Address"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </div>
-                            <div className="relative group">
-                                <Lock className="absolute left-4 top-3.5 text-muted-foreground group-focus-within:text-gold transition-colors" size={20} />
-                                <input
-                                    type="password"
-                                    required
-                                    className="appearance-none block w-full pl-12 pr-4 py-3.5 border border-border placeholder-muted-foreground text-foreground rounded-lg focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold sm:text-sm bg-white shadow-sm transition-all"
-                                    placeholder="Password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
-                            </div>
-                        </div>
+                        </motion.button>
 
-                        <div className="pt-2">
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="group relative w-full flex justify-center items-center py-3.5 px-4 border border-transparent text-sm font-semibold rounded-lg text-white bg-gold hover:bg-gold-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
-                            >
-                                {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
-                                {!loading && <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />}
-                            </button>
-                        </div>
-
-                        <div className="relative my-8">
+                        <div className="relative py-4">
                             <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-border"></div>
+                                <div className="w-full border-t border-white/5"></div>
                             </div>
-                            <div className="relative flex justify-center text-xs uppercase tracking-widest font-medium">
-                                <span className="bg-[#fcfbf9] px-4 text-muted-foreground">Or continue with</span>
+                            <div className="relative flex justify-center text-[9px] uppercase tracking-[0.4em] font-black">
+                                <span className="bg-[#0f0f0f] px-4 text-gray-600">Verification</span>
                             </div>
                         </div>
 
-                        <button
+                        <motion.button
+                            whileHover={{ backgroundColor: 'rgba(255,255,255,0.03)', borderColor: 'rgba(212,175,55,0.2)' }}
+                            whileTap={{ scale: 0.99 }}
                             type="button"
                             onClick={handleGoogleLogin}
-                            className="w-full flex items-center justify-center gap-3 py-3.5 px-4 border border-border rounded-lg bg-white hover:bg-cream/50 text-sm font-semibold text-foreground transition-all duration-200 shadow-sm hover:shadow"
+                            className="w-full py-3.5 border border-white/5 rounded-xl flex items-center justify-center text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-300 text-gray-500 hover:text-white"
                         >
-                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/smartlock/google.svg" alt="Google" className="w-5 h-5" />
-                            Google Sign-In
-                        </button>
+                            <GoogleIcon />
+                            <span>Google Account</span>
+                        </motion.button>
                     </form>
 
-                    <div className="text-center lg:text-left mt-8">
+                    <div className="mt-10 text-center">
                         <button
                             onClick={() => setIsLogin(!isLogin)}
-                            className="text-sm font-medium text-muted-foreground hover:text-gold transition-colors"
+                            className="text-xs uppercase tracking-[0.2em] font-bold text-gray-600 hover:text-gold transition-colors duration-300 group"
                         >
                             {isLogin ? (
-                                <>New to the studio? <span className="text-gold font-semibold underline decoration-transparent hover:decoration-gold transition-all">Create an account</span></>
+                                <span className="flex items-center justify-center gap-2">
+                                    New Client? <span className="text-gold group-hover:underline underline-offset-8 transition-all">Begin Registration</span>
+                                </span>
                             ) : (
-                                <>Already have an account? <span className="text-gold font-semibold underline decoration-transparent hover:decoration-gold transition-all">Sign In</span></>
+                                <span className="flex items-center justify-center gap-2">
+                                    <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                                    Return to Sign In
+                                </span>
                             )}
                         </button>
                     </div>
                 </div>
-            </div>
+
+                <p className="text-center text-[9px] text-gray-700 mt-12 font-black uppercase tracking-[0.5em]">
+                    &copy; {new Date().getFullYear()} Unique Jewelry Studio &bull; End-to-End Encryption
+                </p>
+            </motion.div>
         </div>
     );
 };
