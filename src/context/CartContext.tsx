@@ -12,7 +12,7 @@ interface CartItem {
 interface CartContextType {
   items: CartItem[];
   isOpen: boolean;
-  addToCart: (product: Product) => void;
+  addToCart: (product: Product, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   toggleCart: () => void;
@@ -28,15 +28,28 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
-  const addToCart = useCallback((product: Product) => {
+  const addToCart = useCallback((product: Product, quantity: number = 1) => {
+    if (product.stock <= 0) {
+      return; // Fallback security
+    }
+
     setItems((prev) => {
       const existing = prev.find((i) => i.product.id === product.id);
       if (existing) {
+        const newQuantity = existing.quantity + quantity;
+        if (newQuantity > product.stock) {
+          // If we are over stock, cap it at stock
+          return prev.map((i) =>
+            i.product.id === product.id ? { ...i, quantity: product.stock } : i
+          );
+        }
         return prev.map((i) =>
-          i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i
+          i.product.id === product.id ? { ...i, quantity: newQuantity } : i
         );
       }
-      return [...prev, { product, quantity: 1 }];
+      // New item, cap quantity at stock just in case
+      const finalQty = Math.min(quantity, product.stock);
+      return [...prev, { product, quantity: finalQty }];
     });
     setIsOpen(true);
   }, []);
@@ -46,13 +59,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const updateQuantity = useCallback((productId: string, quantity: number) => {
-    if (quantity <= 0) {
-      setItems((prev) => prev.filter((i) => i.product.id !== productId));
-    } else {
-      setItems((prev) =>
-        prev.map((i) => (i.product.id === productId ? { ...i, quantity } : i))
-      );
-    }
+    setItems((prev) => {
+      const item = prev.find(i => i.product.id === productId);
+      if (!item) return prev;
+
+      if (quantity <= 0) {
+        return prev.filter((i) => i.product.id !== productId);
+      }
+      
+      // Check stock limit
+      if (quantity > item.product.stock) {
+        return prev.map((i) => (i.product.id === productId ? { ...i, quantity: item.product.stock } : i));
+      }
+
+      return prev.map((i) => (i.product.id === productId ? { ...i, quantity } : i));
+    });
   }, []);
 
   const toggleCart = useCallback(() => setIsOpen((p) => !p), []);

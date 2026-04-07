@@ -32,7 +32,11 @@ const Auth = () => {
     const handleGoogleLogin = async () => {
         setLoading(true);
         const provider = new GoogleAuthProvider();
+        // Force the account selection screen
+        provider.setCustomParameters({ prompt: 'select_account' });
+        
         try {
+            // Using signInWithPopup but catching common configuration errors
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
 
@@ -48,7 +52,17 @@ const Auth = () => {
             toast.success('Signed in with Google!');
             navigate('/');
         } catch (error: any) {
-            toast.error('Google Sign-In failed');
+            console.error('Detailed Google Auth Error:', error);
+            
+            if (error.code === 'auth/unauthorized-domain') {
+                 toast.error('Domain not authorized. Please add this URL in Firebase Console > Auth > Settings > Authorized Domains', { duration: 6000 });
+            } else if (error.code === 'auth/popup-closed-by-user') {
+                 toast.error('Sign-in window closed. Please try again.');
+            } else if (error.code === 'auth/cancelled-popup-request') {
+                 toast.error('Only one sign-in window is allowed at a time.');
+            } else {
+                 toast.error(`Google Sign-In failed: ${error.message}`);
+            }
         } finally {
             setLoading(false);
         }

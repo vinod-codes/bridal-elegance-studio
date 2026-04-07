@@ -7,6 +7,7 @@ export interface FirestoreProduct {
   id: string;
   name: string;
   price: number;
+  originalPrice?: number | null; 
   discountPrice?: number | null; 
   category: string;       
   stock: number;

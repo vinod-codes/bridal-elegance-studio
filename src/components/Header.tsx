@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 const navLinks = [
   { to: "/", label: "Home" },
+  { to: "/categories", label: "Collections" },
   { to: "/shop", label: "Shop" },
   { to: "/about", label: "About" },
 ];
