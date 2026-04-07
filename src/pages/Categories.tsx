@@ -1,5 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { db } from "@/config/firebase";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -10,23 +12,61 @@ import catEarrings from "@/assets/cat-mehndi.jpg";
 import catRings from "@/assets/cat-bridal.jpg";
 import catBracelets from "@/assets/cat-combos.jpg";
 
-const categories = [
-  { slug: "Necklaces", label: "Necklaces", image: catNecklaces, description: "Timeless pieces that frame your elegance." },
-  { slug: "Earrings", label: "Earrings", image: catEarrings, description: "Delicate details for a radiant glow." },
-  { slug: "Rings", label: "Rings", image: catRings, description: "Symbols of love and eternal beauty." },
-  { slug: "Bracelets", label: "Bracelets", image: catBracelets, description: "Sophisticated accents for every gesture." },
-] as const;
+// Assets and descriptions mapping for core categories
+const CATEGORY_METADATA: Record<string, { image: string, description: string }> = {
+  "Necklaces": { 
+    image: catNecklaces, 
+    description: "Timeless pieces that frame your elegance with intricate craftsmanship." 
+  },
+  "Earrings": { 
+    image: catEarrings, 
+    description: "Delicate details for a radiant glow, from studs to dramatic drops." 
+  },
+  "Rings": { 
+    image: catRings, 
+    description: "Symbols of love and eternal beauty, crafted in premium gold and stones." 
+  },
+  "Bracelets": { 
+    image: catBracelets, 
+    description: "Sophisticated accents for every gesture, designed for modern luxury." 
+  },
+};
+
+interface CategoryDoc {
+  id: string;
+  name: string;
+  productCount?: number;
+}
 
 const Categories = () => {
-  const { products, loading } = useProducts();
+  const { products, loading: productsLoading } = useProducts();
+  const [dbCategories, setDbCategories] = useState<CategoryDoc[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
 
-  // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
+    
+    const fetchCategories = async () => {
+      try {
+        const q = query(collection(db, "categories"), orderBy("name", "asc"));
+        const snap = await getDocs(q);
+        const fetched = snap.docs.map((d) => ({ 
+          id: d.id, 
+          name: d.data().name,
+          productCount: d.data().productCount || 0
+        }));
+        setDbCategories(fetched);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+    fetchCategories();
   }, []);
 
-  // Count products for each category
+  // Count products for each category (as fallback if db count is out of sync)
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     products.forEach((p) => {
@@ -34,6 +74,8 @@ const Categories = () => {
     });
     return counts;
   }, [products]);
+
+  const loading = productsLoading || categoriesLoading;
 
   return (
     <div className="min-h-screen bg-background">
@@ -56,45 +98,52 @@ const Categories = () => {
         {/* Categories Grid */}
         <section className="container pb-24">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-            {categories.map((cat, index) => (
-              <div 
-                key={cat.slug}
-                className="group relative"
-                onMouseEnter={() => setHoveredCategory(cat.slug)}
-                onMouseLeave={() => setHoveredCategory(null)}
-              >
-                <Link to={`/shop?category=${cat.slug}`} className="block">
-                  <div className="aspect-[16/9] md:aspect-[4/3] overflow-hidden rounded-2xl relative shadow-2xl transition-all duration-500 group-hover:shadow-gold/10">
-                    <img 
-                      src={cat.image} 
-                      alt={cat.label}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
-                    
-                    {/* Content Over Image */}
-                    <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12">
-                      <div className="overflow-hidden mb-2">
-                        <span className="inline-block text-gold-light text-xs font-body tracking-[0.2em] uppercase transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 delay-100">
-                          {categoryCounts[cat.slug] || 0} Pieces
-                        </span>
-                      </div>
-                      <h2 className="font-heading text-3xl md:text-4xl text-primary-foreground font-medium mb-3">
-                        {cat.label}
-                      </h2>
-                      <p className="text-primary-foreground/80 font-body text-sm md:text-base max-w-sm transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-200 line-clamp-2">
-                        {cat.description}
-                      </p>
+            {dbCategories.map((cat) => {
+              const metadata = CATEGORY_METADATA[cat.name] || {
+                image: catNecklaces, // Fallback image
+                description: "Discover our premium collection of artisanal jewelry."
+              };
+              
+              return (
+                <div 
+                  key={cat.id}
+                  className="group relative"
+                  onMouseEnter={() => setHoveredCategory(cat.name)}
+                  onMouseLeave={() => setHoveredCategory(null)}
+                >
+                  <Link to={`/shop?category=${cat.name}`} className="block">
+                    <div className="aspect-[16/9] md:aspect-[4/3] overflow-hidden rounded-2xl relative shadow-2xl transition-all duration-500 group-hover:shadow-gold/10">
+                      <img 
+                        src={metadata.image} 
+                        alt={cat.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
                       
-                      <div className="mt-6 flex items-center gap-2 text-gold group-hover:text-gold-light transition-colors transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-300">
-                        <span className="text-sm font-body tracking-wider uppercase">View Collection</span>
-                        <div className="h-[1px] w-8 bg-current transition-all duration-500 group-hover:w-12" />
+                      {/* Content Over Image */}
+                      <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12">
+                        <div className="overflow-hidden mb-2">
+                          <span className="inline-block text-gold-light text-xs font-body tracking-[0.2em] uppercase transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 delay-100">
+                            {categoryCounts[cat.name] || cat.productCount || 0} Pieces
+                          </span>
+                        </div>
+                        <h2 className="font-heading text-3xl md:text-4xl text-primary-foreground font-medium mb-3">
+                          {cat.name}
+                        </h2>
+                        <p className="text-primary-foreground/80 font-body text-sm md:text-base max-w-sm transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-200 line-clamp-2">
+                          {metadata.description}
+                        </p>
+                        
+                        <div className="mt-6 flex items-center gap-2 text-gold group-hover:text-gold-light transition-colors transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-300">
+                          <span className="text-sm font-body tracking-wider uppercase">View Collection</span>
+                          <div className="h-[1px] w-8 bg-current transition-all duration-500 group-hover:w-12" />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              </div>
-            ))}
+                  </Link>
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -115,7 +164,7 @@ const Categories = () => {
               </Link>
             </div>
 
-            {loading ? (
+            {productsLoading ? (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                 {[...Array(4)].map((_, i) => (
                   <div key={i} className="aspect-[3/4] bg-muted animate-pulse rounded-lg" />
