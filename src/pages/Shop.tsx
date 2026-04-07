@@ -1,5 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { db } from "@/config/firebase";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -8,13 +10,10 @@ import { useProducts } from "@/hooks/useProducts";
 
 type SortOption = "default" | "price-asc" | "price-desc" | "newest";
 
-// These slugs map to the category values stored by the admin panel
-const categories = [
-  { slug: "Necklaces", label: "Necklaces" },
-  { slug: "Rings", label: "Rings" },
-  { slug: "Earrings", label: "Earrings" },
-  { slug: "Bracelets", label: "Bracelets" },
-] as const;
+interface Category {
+  id: string;
+  name: string;
+}
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -22,14 +21,39 @@ const Shop = () => {
   const [sort, setSort] = useState<SortOption>("default");
   const { products, loading } = useProducts();
 
+  // Dynamic categories from Firestore (same collection the admin manages)
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [catsLoading, setCatsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const q = query(collection(db, "categories"), orderBy("name", "asc"));
+        const snap = await getDocs(q);
+        setCategories(snap.docs.map((d) => ({ id: d.id, name: d.data().name })));
+      } catch {
+        // Fallback without ordering
+        try {
+          const snap = await getDocs(collection(db, "categories"));
+          setCategories(snap.docs.map((d) => ({ id: d.id, name: d.data().name })));
+        } catch {
+          setCategories([]);
+        }
+      } finally {
+        setCatsLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   const filtered = useMemo(() => {
-    let list = activeCategory === "all"
-      ? products
-      : products.filter((p) => p.category === activeCategory);
+    let list =
+      activeCategory === "all"
+        ? products
+        : products.filter((p) => p.category === activeCategory);
 
     if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
     if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
-    // "newest" is already the default order from the hook (ordered by createdAt desc)
     return list;
   }, [products, activeCategory, sort]);
 
@@ -46,26 +70,41 @@ const Shop = () => {
         {/* Filters */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <div className="flex flex-wrap gap-2">
+            {/* All button */}
             <button
               onClick={() => setSearchParams({})}
               className={`px-4 py-2 rounded-sm text-xs font-body uppercase tracking-wider transition-all ${
-                activeCategory === "all" ? "bg-gold text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-gold/10"
+                activeCategory === "all"
+                  ? "bg-gold text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-gold/10"
               }`}
             >
               All
             </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.slug}
-                onClick={() => setSearchParams({ category: cat.slug })}
-                className={`px-4 py-2 rounded-sm text-xs font-body uppercase tracking-wider transition-all ${
-                  activeCategory === cat.slug ? "bg-gold text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-gold/10"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
+
+            {/* Dynamic category buttons from Firestore */}
+            {catsLoading ? (
+              // Skeleton placeholders while loading
+              [...Array(4)].map((_, i) => (
+                <div key={i} className="w-24 h-8 rounded-sm bg-muted animate-pulse" />
+              ))
+            ) : (
+              categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSearchParams({ category: cat.name })}
+                  className={`px-4 py-2 rounded-sm text-xs font-body uppercase tracking-wider transition-all ${
+                    activeCategory === cat.name
+                      ? "bg-gold text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-gold/10"
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              ))
+            )}
           </div>
+
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
@@ -78,7 +117,7 @@ const Shop = () => {
           </select>
         </div>
 
-        {/* Grid */}
+        {/* Product Grid */}
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {[...Array(8)].map((_, i) => (
@@ -94,7 +133,9 @@ const Shop = () => {
         )}
 
         {!loading && filtered.length === 0 && (
-          <p className="text-center text-muted-foreground font-body py-16">No products found in this category.</p>
+          <p className="text-center text-muted-foreground font-body py-16">
+            No products found{activeCategory !== "all" ? ` in "${activeCategory}"` : ""}.
+          </p>
         )}
       </main>
       <Footer />

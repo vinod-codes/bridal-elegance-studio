@@ -8,6 +8,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import CartSidebar from "@/components/CartSidebar";
 import Index from "./pages/Index.tsx";
 import Shop from "./pages/Shop.tsx";
+import Categories from "./pages/Categories.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
 import About from "./pages/About.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -30,6 +31,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/shop" element={<Shop />} />
+              <Route path="/categories" element={<Categories />} />
               <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/about" element={<About />} />
               <Route path="/auth" element={<Auth />} />

@@ -15,9 +15,17 @@ const cats = [
 const CategorySection = () => {
   return (
     <section className="py-16 md:py-24 container">
-      <div className="text-center mb-12">
-        <p className="text-gold text-xs tracking-[0.3em] uppercase font-body mb-2">Collections</p>
-        <h2 className="font-heading text-3xl md:text-4xl font-medium">Shop by Occasion</h2>
+      <div className="flex items-end justify-between mb-12 gap-6">
+        <div className="text-left">
+          <p className="text-gold text-xs tracking-[0.3em] uppercase font-body mb-2">Collections</p>
+          <h2 className="font-heading text-3xl md:text-4xl font-medium">Shop by Occasion</h2>
+        </div>
+        <Link 
+          to="/categories" 
+          className="group flex items-center gap-2 text-xs font-body tracking-wider uppercase text-foreground hover:text-gold transition-colors"
+        >
+          View All <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+        </Link>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         {cats.map((cat) => (

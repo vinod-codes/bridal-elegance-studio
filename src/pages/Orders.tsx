@@ -14,6 +14,7 @@ interface OrderItem {
   price: number;
   quantity: number;
   image?: string;
+  images?: string[];
 }
 
 interface Order {
@@ -122,8 +123,12 @@ const Orders = () => {
                 <div className="divide-y divide-border/40">
                   {order.items?.map((item, i) => (
                     <div key={i} className="flex items-center gap-4 py-3">
-                      {item.image && (
-                        <img src={item.image} alt={item.name} className="w-14 h-14 object-cover rounded-lg" />
+                      {item.image || (item.images && item.images[0]) ? (
+                        <img src={item.image || item.images[0]} alt={item.name} className="w-14 h-14 object-cover rounded-lg" />
+                      ) : (
+                        <div className="w-14 h-14 bg-muted rounded-lg flex items-center justify-center shrink-0">
+                          <ShoppingBag size={20} className="text-muted-foreground/30" />
+                        </div>
                       )}
                       <div className="flex-1">
                         <p className="font-heading text-sm font-medium">{item.name}</p>
