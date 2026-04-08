@@ -62,17 +62,7 @@ const CartSidebar = () => {
         order_id: order.id,
         handler: async function (response: any) {
           try {
-            // 3. Update stock in Firestore for each item
-            const batch = writeBatch(db);
-            items.forEach((item) => {
-              const productRef = doc(db, "products", item.product.id);
-              batch.update(productRef, {
-                stock: increment(-item.quantity),
-              });
-            });
-            await batch.commit();
-
-            // 4. Save to Firestore on success
+            // 3. Save order to Firestore FIRST (critical — user has create permission)
             await addDoc(collection(db, "orders"), {
               userId: user.uid,
               userEmail: user.email,
@@ -91,9 +81,24 @@ const CartSidebar = () => {
               createdAt: serverTimestamp(),
             });
 
+            // 4. Update stock in Firestore (best-effort — don't block order on failure)
+            try {
+              const batch = writeBatch(db);
+              items.forEach((item) => {
+                const productRef = doc(db, "products", item.product.id);
+                batch.update(productRef, {
+                  stock: increment(-item.quantity),
+                });
+              });
+              await batch.commit();
+            } catch (stockErr) {
+              console.warn("Stock update failed (order was saved successfully):", stockErr);
+              // Stock will be reconciled by admin — order is already recorded
+            }
+
             clearCart();
             closeCart();
-            toast.success("✨ Payment successful! Stock updated & order placed.", {
+            toast.success("✨ Payment successful! Order placed.", {
               action: { label: "My Orders", onClick: () => navigate("/orders") },
             });
           } catch (err) {

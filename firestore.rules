@@ -1,0 +1,65 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper: check admin safely — returns false if user doc doesn't exist
+    function isAdmin() {
+      return request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Default catch-all: authenticated users can read; admins can write
+    match /{document=**} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // Products: public read (storefront needs it); admins full write;
+    // Authenticated users can update stock field only (for order placement)
+    match /products/{id} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (
+        request.auth != null &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock']) &&
+        request.resource.data.stock is int &&
+        request.resource.data.stock >= 0
+      );
+    }
+
+    // Categories: public read (shop filters); only admins write
+    match /categories/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Orders: admins have full access; customers can create and read their own
+    match /orders/{id} {
+      allow read: if request.auth != null && (
+        isAdmin() || resource.data.userId == request.auth.uid
+      );
+      allow create: if request.auth != null;
+      allow update, delete: if isAdmin();
+    }
+
+    // Audit logs: admins read; anyone can create (for client-side logging)
+    match /audit_logs/{id} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // User profiles: users can read/write their own; admins can read all
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if isAdmin();
+    }
+
+    // Coupons: only admins
+    match /coupons/{id} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
