@@ -54,7 +54,7 @@ const CartSidebar = () => {
 
       // 2. Open Razorpay Checkout
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_SagVuKz8l4ijVl",
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_Sb16AhWMZG3LSJ",
         amount: order.amount,
         currency: order.currency,
         name: "Unique Jewelry Studio",
