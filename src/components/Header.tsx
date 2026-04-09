@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import besWordmark from "@/assets/bes-wordmark.png";
+import ujsWordmark from "@/assets/ujs-wordmark.png";
 import { Search, User, ShoppingBag, Menu, X, LogOut, Package } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -39,9 +39,9 @@ const Header = () => {
         </button>
 
         {/* Logo */}
-        <Link to="/" className="flex-shrink-0 flex items-center gap-3">
-          <img src="/logo.png" alt="Bridal Elegance Studio" className="h-12 md:h-16 py-1 object-contain" />
-          <img src={besWordmark} alt="BES" className="h-8 md:h-10 object-contain" />
+        <Link to="/" className="flex-shrink-0 flex items-center gap-2">
+          <img src="/logo.png" alt="Unique Jewelry Studio" className="h-12 md:h-16 py-1 object-contain" />
+          <img src={ujsWordmark} alt="UJS" className="h-8 md:h-10 object-contain" />
         </Link>
 
         {/* Desktop Nav */}

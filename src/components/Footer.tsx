@@ -1,14 +1,16 @@
 import { Link } from "react-router-dom";
 import { Instagram, Facebook, Mail, Phone } from "lucide-react";
+import ujsWordmark from "@/assets/ujs-wordmark.png";
+
 const Footer = () => {
   return (
     <footer className="bg-foreground text-primary-foreground/80">
       <div className="container py-16 grid grid-cols-1 md:grid-cols-4 gap-10">
         {/* Brand */}
         <div className="space-y-4">
-          <Link to="/" className="inline-flex items-center gap-4">
-            <img src="/logo.png" alt="Bridal Elegance Studio" className="h-20 md:h-24 object-contain" />
-            <span className="font-heading text-4xl font-medium tracking-widest text-gold uppercase">BES</span>
+          <Link to="/" className="inline-flex items-center gap-3">
+            <img src="/logo.png" alt="Unique Jewelry Studio" className="h-20 md:h-24 object-contain" />
+            <img src={ujsWordmark} alt="UJS" className="h-10 md:h-12 object-contain brightness-150" />
           </Link>
           <p className="text-sm font-body leading-relaxed text-primary-foreground/60">
             Handcrafted bridal jewelry for your most cherished moments. Each piece is made with love and attention to detail.
@@ -54,7 +56,7 @@ const Footer = () => {
         <div>
           <h4 className="font-heading text-lg font-medium text-primary-foreground mb-4">Contact</h4>
           <ul className="space-y-3 text-sm font-body">
-            <li className="flex items-center gap-2"><Mail size={14} className="text-gold" /> bridalelegancestudio@gmail.com</li>
+            <li className="flex items-center gap-2"><Mail size={14} className="text-gold" /> uniquejewelrystudio@gmail.com</li>
             <li className="flex items-center gap-2"><Phone size={14} className="text-gold" /> +91 98765 43210</li>
           </ul>
           <h4 className="font-heading text-lg font-medium text-primary-foreground mt-6 mb-3">Policies</h4>
@@ -71,7 +73,7 @@ const Footer = () => {
       </div>
       <div className="border-t border-primary-foreground/10 py-6">
         <p className="text-center text-xs font-body text-primary-foreground/40">
-          © 2026 Bridal Elegance Studio. All rights reserved.
+          © 2026 Unique Jewelry Studio. All rights reserved.
         </p>
       </div>
     </footer>
