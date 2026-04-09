@@ -5,7 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
-import CartSidebar from "@/components/CartSidebar";
+import Cart from "./pages/Cart.tsx";
+import Checkout from "./pages/Checkout.tsx";
 import Index from "./pages/Index.tsx";
 import Shop from "./pages/Shop.tsx";
 import Categories from "./pages/Categories.tsx";
@@ -17,6 +18,7 @@ import RefundPolicy from "./pages/RefundPolicy.tsx";
 import ShippingPolicy from "./pages/ShippingPolicy.tsx";
 import Auth from "./pages/Auth.tsx";
 import Orders from "./pages/Orders.tsx";
+import OrderSuccess from "./pages/OrderSuccess.tsx";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -27,7 +29,6 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <CartSidebar />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/shop" element={<Shop />} />
@@ -35,7 +36,10 @@ const App = () => (
               <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/about" element={<About />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/orders" element={<Orders />} />
+              <Route path="/my-orders" element={<Orders />} />
+              <Route path="/order-success/:orderId" element={<OrderSuccess />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
               <Route path="*" element={<NotFound />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/refund" element={<RefundPolicy />} />

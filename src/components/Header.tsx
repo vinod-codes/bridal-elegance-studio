@@ -39,8 +39,8 @@ const Header = () => {
 
         {/* Logo */}
         <Link to="/" className="flex-shrink-0 flex items-center gap-3">
-          <img src="/logo.png" alt="Unique Jewelry Studio" className="h-12 md:h-16 py-1 object-contain" />
-          <span className="font-heading text-2xl md:text-3xl font-medium tracking-widest text-[#d4af37] uppercase">UJS</span>
+          <img src="/logo.png" alt="Bridal Elegance Studio" className="h-12 md:h-16 py-1 object-contain" />
+          <span className="font-heading text-2xl md:text-3xl font-medium tracking-widest text-[#d4af37] uppercase">BES</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -49,9 +49,8 @@ const Header = () => {
             <Link
               key={link.label}
               to={link.to}
-              className={`text-sm font-body tracking-wide transition-colors hover:text-gold ${
-                location.pathname === link.to ? "text-gold font-medium" : "text-foreground"
-              }`}
+              className={`text-sm font-body tracking-wide transition-colors hover:text-gold ${location.pathname === link.to ? "text-gold font-medium" : "text-foreground"
+                }`}
             >
               {link.label}
             </Link>
@@ -116,9 +115,9 @@ const Header = () => {
           </div>
 
           {/* Cart */}
-          <button
+          <Link
+            to="/cart"
             className="p-2 text-foreground hover:text-gold transition-colors relative"
-            onClick={toggleCart}
             aria-label="Cart"
           >
             <ShoppingBag size={20} />
@@ -127,7 +126,7 @@ const Header = () => {
                 {totalItems}
               </span>
             )}
-          </button>
+          </Link>
         </div>
       </div>
 

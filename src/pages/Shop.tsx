@@ -73,11 +73,10 @@ const Shop = () => {
             {/* All button */}
             <button
               onClick={() => setSearchParams({})}
-              className={`px-4 py-2 rounded-sm text-xs font-body uppercase tracking-wider transition-all ${
-                activeCategory === "all"
+              className={`px-4 py-2 rounded-sm text-xs font-body uppercase tracking-wider transition-all ${activeCategory === "all"
                   ? "bg-gold text-primary-foreground"
                   : "bg-muted text-muted-foreground hover:bg-gold/10"
-              }`}
+                }`}
             >
               All
             </button>
@@ -93,11 +92,10 @@ const Shop = () => {
                 <button
                   key={cat.id}
                   onClick={() => setSearchParams({ category: cat.name })}
-                  className={`px-4 py-2 rounded-sm text-xs font-body uppercase tracking-wider transition-all ${
-                    activeCategory === cat.name
+                  className={`px-4 py-2 rounded-sm text-xs font-body uppercase tracking-wider transition-all ${activeCategory === cat.name
                       ? "bg-gold text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:bg-gold/10"
-                  }`}
+                    }`}
                 >
                   {cat.name}
                 </button>

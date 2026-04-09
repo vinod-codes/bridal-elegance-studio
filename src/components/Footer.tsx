@@ -7,8 +7,8 @@ const Footer = () => {
         {/* Brand */}
         <div className="space-y-4">
           <Link to="/" className="inline-flex items-center gap-4">
-            <img src="/logo.png" alt="Unique Jewelry Studio" className="h-20 md:h-24 object-contain" />
-            <span className="font-heading text-4xl font-medium tracking-widest text-gold uppercase">UJS</span>
+            <img src="/logo.png" alt="Bridal Elegance Studio" className="h-20 md:h-24 object-contain" />
+            <span className="font-heading text-4xl font-medium tracking-widest text-gold uppercase">BES</span>
           </Link>
           <p className="text-sm font-body leading-relaxed text-primary-foreground/60">
             Handcrafted bridal jewelry for your most cherished moments. Each piece is made with love and attention to detail.
@@ -54,7 +54,7 @@ const Footer = () => {
         <div>
           <h4 className="font-heading text-lg font-medium text-primary-foreground mb-4">Contact</h4>
           <ul className="space-y-3 text-sm font-body">
-            <li className="flex items-center gap-2"><Mail size={14} className="text-gold" /> uniquejewellerystudio@gmail.com</li>
+            <li className="flex items-center gap-2"><Mail size={14} className="text-gold" /> bridalelegancestudio@gmail.com</li>
             <li className="flex items-center gap-2"><Phone size={14} className="text-gold" /> +91 98765 43210</li>
           </ul>
           <h4 className="font-heading text-lg font-medium text-primary-foreground mt-6 mb-3">Policies</h4>
@@ -71,7 +71,7 @@ const Footer = () => {
       </div>
       <div className="border-t border-primary-foreground/10 py-6">
         <p className="text-center text-xs font-body text-primary-foreground/40">
-          © 2026 Unique Jewelry Studio. All rights reserved.
+          © 2026 Bridal Elegance Studio. All rights reserved.
         </p>
       </div>
     </footer>
