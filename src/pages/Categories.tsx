@@ -7,30 +7,74 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
-import catNecklaces from "@/assets/cat-haldi.jpg";
-import catEarrings from "@/assets/cat-mehndi.jpg";
-import catRings from "@/assets/cat-bridal.jpg";
-import catBracelets from "@/assets/cat-combos.jpg";
+import catNecklaces from "@/assets/cat-necklaces.jpg";
+import catEarrings from "@/assets/cat-earrings.jpg";
+import catRings from "@/assets/cat-rings.jpg";
+import catBracelets from "@/assets/cat-bracelets.jpg";
+import catChokerSets from "@/assets/cat-choker-sets.jpg";
+import catMaangTikka from "@/assets/cat-maang-tikka.jpg";
+import catHaldi from "@/assets/cat-haldi-new.jpg";
+import catMehndi from "@/assets/cat-mehndi-new.jpg";
+import catCombos from "@/assets/cat-combos-new.jpg";
+import catNath from "@/assets/cat-nath.jpg";
 
-// Assets and descriptions mapping for core categories
-const CATEGORY_METADATA: Record<string, { image: string, description: string }> = {
+const CATEGORY_METADATA: Record<string, { image: string; description: string }> = {
   "Necklaces": {
     image: catNecklaces,
-    description: "Timeless pieces that frame your elegance with intricate craftsmanship."
+    description: "Timeless pieces that frame your elegance with intricate craftsmanship.",
   },
   "Earrings": {
     image: catEarrings,
-    description: "Delicate details for a radiant glow, from studs to dramatic drops."
+    description: "Delicate details for a radiant glow, from studs to dramatic drops.",
   },
   "Rings": {
     image: catRings,
-    description: "Symbols of love and eternal beauty, crafted in premium gold and stones."
+    description: "Symbols of love and eternal beauty, crafted in premium gold and stones.",
   },
   "Bracelets": {
     image: catBracelets,
-    description: "Sophisticated accents for every gesture, designed for modern luxury."
+    description: "Sophisticated accents for every gesture, designed for modern luxury.",
+  },
+  "Choker Sets": {
+    image: catChokerSets,
+    description: "Statement chokers with layered elegance, perfect for bridal grandeur.",
+  },
+  "Maang Tikka": {
+    image: catMaangTikka,
+    description: "Graceful headpieces adorned with pearls and kundan for the perfect bridal look.",
+  },
+  "Haldi Jewelry": {
+    image: catHaldi,
+    description: "Vibrant marigold-inspired floral jewelry to brighten your Haldi ceremony.",
+  },
+  "Haldi": {
+    image: catHaldi,
+    description: "Vibrant marigold-inspired floral jewelry to brighten your Haldi ceremony.",
+  },
+  "Mehndi Jewelry": {
+    image: catMehndi,
+    description: "Playful pink and green floral sets to celebrate your Mehndi night.",
+  },
+  "Mehndi": {
+    image: catMehndi,
+    description: "Playful pink and green floral sets to celebrate your Mehndi night.",
+  },
+  "Combos": {
+    image: catCombos,
+    description: "Complete jewelry sets bundled for value — necklace, earrings, tikka & more.",
+  },
+  "Bridal Sets": {
+    image: catChokerSets,
+    description: "Exquisite full bridal sets for your most unforgettable day.",
+  },
+  "Nath": {
+    image: catNath,
+    description: "Pearl chain nose rings with floral accents, the finishing bridal touch.",
   },
 };
+
+// Fallback images to cycle through for unknown categories
+const FALLBACK_IMAGES = [catNecklaces, catEarrings, catRings, catBracelets, catChokerSets, catMaangTikka, catHaldi, catMehndi, catCombos, catNath];
 
 interface CategoryDoc {
   id: string;
@@ -54,7 +98,7 @@ const Categories = () => {
         const fetched = snap.docs.map((d) => ({
           id: d.id,
           name: d.data().name,
-          productCount: d.data().productCount || 0
+          productCount: d.data().productCount || 0,
         }));
         setDbCategories(fetched);
       } catch (error) {
@@ -66,7 +110,6 @@ const Categories = () => {
     fetchCategories();
   }, []);
 
-  // Count products for each category (as fallback if db count is out of sync)
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     products.forEach((p) => {
@@ -98,10 +141,10 @@ const Categories = () => {
         {/* Categories Grid */}
         <section className="container pb-24">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-            {dbCategories.map((cat) => {
+            {dbCategories.map((cat, index) => {
               const metadata = CATEGORY_METADATA[cat.name] || {
-                image: catNecklaces, // Fallback image
-                description: "Discover our premium collection of artisanal jewelry."
+                image: FALLBACK_IMAGES[index % FALLBACK_IMAGES.length],
+                description: "Discover our premium collection of artisanal jewelry.",
               };
 
               return (
@@ -120,7 +163,6 @@ const Categories = () => {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
 
-                      {/* Content Over Image */}
                       <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12">
                         <div className="overflow-hidden mb-2">
                           <span className="inline-block text-gold-light text-xs font-body tracking-[0.2em] uppercase transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 delay-100">
