@@ -27,7 +27,15 @@ const ASSETS_MAP: Record<string, string> = {
   "Bridal Sets": catChokerSets,
   "Haldi": catHaldi,
   "Mehndi": catMehndi,
+  "Anti tarnish jewellery": catNecklaces,
+  "Baby Shower jewellery": catHaldi,
+  "Fabric jewellery": catMehndi,
+  "Haldimehndi Jewellery ": catCombos,
+  "Navratri jewellery": catMaangTikka,
 };
+
+// Fallback images consistent with Categories page
+const FALLBACK_IMAGES = [catNecklaces, catEarrings, catRings, catBracelets, catChokerSets, catMaangTikka, catHaldi, catMehndi, catCombos, catNath];
 
 interface CategoryDoc {
   id: string;
@@ -72,35 +80,33 @@ const CategorySection = () => {
         </Link>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-        {categories.slice(0, 4).map((cat) => (
-          <Link
-            key={cat.id}
-            to={`/shop?category=${cat.name}`}
-            className="group relative aspect-[3/4] rounded-lg overflow-hidden hover-lift bg-muted"
-          >
-            {ASSETS_MAP[cat.name] ? (
+        {categories.slice(0, 4).map((cat, index) => {
+          const image = ASSETS_MAP[cat.name] || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+          
+          return (
+            <Link
+              key={cat.id}
+              to={`/shop?category=${cat.name}`}
+              className="group relative aspect-[3/4] rounded-lg overflow-hidden hover-lift bg-muted"
+            >
               <img
-                src={ASSETS_MAP[cat.name]}
+                src={image}
                 alt={cat.name}
                 loading="lazy"
                 width={640}
                 height={800}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center p-6 bg-gold/5">
-                 <span className="font-heading text-xl opacity-20">{cat.name}</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+                <h3 className="font-heading text-lg md:text-xl text-primary-foreground font-medium">{cat.name}</h3>
+                <span className="text-primary-foreground/70 text-xs font-body tracking-wider uppercase mt-1 inline-block group-hover:text-gold-light transition-colors">
+                  Explore →
+                </span>
               </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
-              <h3 className="font-heading text-lg md:text-xl text-primary-foreground font-medium">{cat.name}</h3>
-              <span className="text-primary-foreground/70 text-xs font-body tracking-wider uppercase mt-1 inline-block group-hover:text-gold-light transition-colors">
-                Explore →
-              </span>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
       </div>
     </section>
   );

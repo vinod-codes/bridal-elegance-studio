@@ -71,6 +71,26 @@ const CATEGORY_METADATA: Record<string, { image: string; description: string }> 
     image: catNath,
     description: "Pearl chain nose rings with floral accents, the finishing bridal touch.",
   },
+  "Anti tarnish jewellery": {
+    image: catNecklaces,
+    description: "Tarnish-resistant pieces that stay brilliant for years, perfect for daily luxury.",
+  },
+  "Baby Shower jewellery": {
+    image: catHaldi,
+    description: "Adorable and elegant jewelry sets specially designed for traditional baby shower ceremonies.",
+  },
+  "Fabric jewellery": {
+    image: catMehndi,
+    description: "Artisanal handcrafted fabric and floral jewelry, lightweight and perfect for intimate celebrations.",
+  },
+  "Haldimehndi Jewellery ": {
+    image: catCombos,
+    description: "Vibrant yellow and green themed sets for the most joyful moments of your wedding journey.",
+  },
+  "Navratri jewellery": {
+    image: catMaangTikka,
+    description: "Bold and colorful oxidised pieces to celebrate the spirit of Navratri with style.",
+  },
 };
 
 // Fallback images to cycle through for unknown categories
