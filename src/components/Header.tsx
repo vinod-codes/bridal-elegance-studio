@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import besWordmark from "@/assets/bes-wordmark.png";
 import { Search, User, ShoppingBag, Menu, X, LogOut, Package } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -40,7 +41,7 @@ const Header = () => {
         {/* Logo */}
         <Link to="/" className="flex-shrink-0 flex items-center gap-3">
           <img src="/logo.png" alt="Bridal Elegance Studio" className="h-12 md:h-16 py-1 object-contain" />
-          <span className="font-heading text-2xl md:text-3xl font-medium tracking-widest text-[#d4af37] uppercase">BES</span>
+          <img src={besWordmark} alt="BES" className="h-8 md:h-10 object-contain" />
         </Link>
 
         {/* Desktop Nav */}
