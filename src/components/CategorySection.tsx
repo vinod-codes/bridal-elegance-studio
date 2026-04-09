@@ -2,17 +2,31 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/config/firebase";
-import catNecklaces from "@/assets/cat-haldi.jpg";
-import catEarrings from "@/assets/cat-mehndi.jpg";
-import catRings from "@/assets/cat-bridal.jpg";
-import catBracelets from "@/assets/cat-combos.jpg";
+import catNecklaces from "@/assets/cat-necklaces.jpg";
+import catEarrings from "@/assets/cat-earrings.jpg";
+import catRings from "@/assets/cat-rings.jpg";
+import catBracelets from "@/assets/cat-bracelets.jpg";
+import catChokerSets from "@/assets/cat-choker-sets.jpg";
+import catMaangTikka from "@/assets/cat-maang-tikka.jpg";
+import catHaldi from "@/assets/cat-haldi-new.jpg";
+import catMehndi from "@/assets/cat-mehndi-new.jpg";
+import catCombos from "@/assets/cat-combos-new.jpg";
+import catNath from "@/assets/cat-nath.jpg";
 
-// Assets mapping for core categories
 const ASSETS_MAP: Record<string, string> = {
   "Necklaces": catNecklaces,
   "Earrings": catEarrings,
   "Rings": catRings,
   "Bracelets": catBracelets,
+  "Choker Sets": catChokerSets,
+  "Maang Tikka": catMaangTikka,
+  "Haldi Jewelry": catHaldi,
+  "Mehndi Jewelry": catMehndi,
+  "Combos": catCombos,
+  "Nath": catNath,
+  "Bridal Sets": catChokerSets,
+  "Haldi": catHaldi,
+  "Mehndi": catMehndi,
 };
 
 interface CategoryDoc {
@@ -30,8 +44,6 @@ const CategorySection = () => {
         const q = query(collection(db, "categories"), orderBy("name", "asc"));
         const snap = await getDocs(q);
         const fetched = snap.docs.map((d) => ({ id: d.id, name: d.data().name }));
-        
-        // If we have categories, use them. Otherwise show nothing or fallback.
         setCategories(fetched);
       } catch (error) {
         console.error("Error fetching categories for home:", error);
