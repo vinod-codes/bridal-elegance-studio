@@ -360,7 +360,7 @@ const ProductDetail = () => {
               <div className="space-y-3">
                 <h3 className="text-sm font-heading font-bold uppercase tracking-widest text-foreground">Product Description</h3>
                 <p className="text-muted-foreground font-body leading-relaxed text-[15px]">
-                  {product.description || "A beautifully crafted piece from Bridal Elegance Studio, designed to make your special moments unforgettable. Experience premium quality materials and meticulous attention to detail."}
+                  {product.description || "A beautifully crafted piece from Unique Jewelry Studio, designed to make your special moments unforgettable. Experience premium quality materials and meticulous attention to detail."}
                 </p>
               </div>
 
