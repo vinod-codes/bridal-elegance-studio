@@ -11,10 +11,10 @@ const ProductCard = ({ product }: Props) => {
   const { addToCart } = useCart();
   const displayPrice = product.discountPrice ?? product.price;
   const originalPrice = product.discountPrice ? product.price : null;
-  const discount = originalPrice && product.discountPrice 
-      ? Math.round(((originalPrice - product.discountPrice) / originalPrice) * 100)
-      : 0;
-  
+  const discount = originalPrice && product.discountPrice
+    ? Math.round(((originalPrice - product.discountPrice) / originalPrice) * 100)
+    : 0;
+
   const displayImage = product.images?.[0] || product.image || "/placeholder.jpg";
 
   return (

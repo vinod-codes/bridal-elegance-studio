@@ -1,13 +1,13 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { 
-  ShoppingBag, 
-  Minus, 
-  Plus, 
-  Star, 
-  Truck, 
-  RefreshCcw, 
-  ShieldCheck, 
+import {
+  ShoppingBag,
+  Minus,
+  Plus,
+  Star,
+  Truck,
+  RefreshCcw,
+  ShieldCheck,
   Heart,
   Share2,
   CheckCircle2,
@@ -24,10 +24,10 @@ import { cn } from "@/lib/utils";
 /* ─── Rating Donut Chart ─── */
 const ratingData = [
   { stars: 5, count: 1420, color: "#22c55e" },
-  { stars: 4, count: 640,  color: "#86efac" },
-  { stars: 3, count: 210,  color: "#fbbf24" },
-  { stars: 2, count: 90,   color: "#fb923c" },
-  { stars: 1, count: 40,   color: "#f87171" },
+  { stars: 4, count: 640, color: "#86efac" },
+  { stars: 3, count: 210, color: "#fbbf24" },
+  { stars: 2, count: 90, color: "#fb923c" },
+  { stars: 1, count: 40, color: "#f87171" },
 ];
 const totalRatings = ratingData.reduce((s, r) => s + r.count, 0);
 const avgRating = (
@@ -250,7 +250,7 @@ const ProductDetail = () => {
     <div className="min-h-screen bg-white">
       <AnnouncementBar />
       <Header />
-      
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb Navigation */}
         <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-8 font-body">
@@ -265,10 +265,10 @@ const ProductDetail = () => {
           {/* LEFT COLUMN: Image Gallery */}
           <div className="flex-1 space-y-4">
             <div className="relative group overflow-hidden rounded-xl bg-muted aspect-[3/4]">
-              <img 
-                src={images[activeImage]} 
-                alt={product.name} 
-                className="w-full h-full object-cover transition-transform duration-500 hover:scale-110 cursor-zoom-in" 
+              <img
+                src={images[activeImage]}
+                alt={product.name}
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-110 cursor-zoom-in"
               />
               {isOutOfStock && (
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
@@ -299,7 +299,7 @@ const ProductDetail = () => {
             {images.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                 {images.map((img, idx) => (
-                  <button 
+                  <button
                     key={idx}
                     onClick={() => setActiveImage(idx)}
                     className={cn(
@@ -328,7 +328,7 @@ const ProductDetail = () => {
                   )}
                 </div>
                 <h1 className="text-3xl lg:text-4xl font-heading font-medium text-foreground tracking-tight leading-none uppercase">{product.name}</h1>
-                
+
                 <div className="flex items-center gap-3 pt-2">
                   <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded text-green-700">
                     <span className="text-sm font-bold">{avgRating}</span>
@@ -371,16 +371,16 @@ const ProductDetail = () => {
                   <div className="flex flex-col gap-3">
                     <span className="text-xs font-heading font-bold uppercase tracking-widest">Select Quantity</span>
                     <div className="flex items-center w-fit border border-muted-foreground/30 rounded-lg bg-muted/5">
-                      <button 
-                        onClick={() => setQty(Math.max(1, qty - 1))} 
+                      <button
+                        onClick={() => setQty(Math.max(1, qty - 1))}
                         className="p-3 hover:text-gold transition-colors disabled:opacity-30"
                         disabled={qty <= 1}
                       >
                         <Minus size={18} />
                       </button>
                       <span className="px-6 text-xl font-heading font-bold border-x border-muted-foreground/30">{qty}</span>
-                      <button 
-                        onClick={() => setQty(Math.min(product.stock || 99, qty + 1))} 
+                      <button
+                        onClick={() => setQty(Math.min(product.stock || 99, qty + 1))}
                         className="p-3 hover:text-gold transition-colors"
                         disabled={qty >= (product.stock || 99)}
                       >
@@ -413,7 +413,7 @@ const ProductDetail = () => {
                     <ShoppingBag size={22} className="group-hover:scale-110 transition-transform" />
                     {isOutOfStock ? "Out of Stock" : "Add to Bag"}
                   </button>
-                  
+
                   <button
                     onClick={handleBuyNow}
                     disabled={isOutOfStock}
@@ -514,7 +514,7 @@ const ProductDetail = () => {
           </section>
         )}
       </main>
-      
+
       <Footer />
     </div>
   );

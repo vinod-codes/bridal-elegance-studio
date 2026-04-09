@@ -25,8 +25,19 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItem[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("bridal_cart");
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
   const [isOpen, setIsOpen] = useState(false);
+
+  // Save to localStorage on change
+  React.useEffect(() => {
+    localStorage.setItem("bridal_cart", JSON.stringify(items));
+  }, [items]);
 
   const addToCart = useCallback((product: Product, quantity: number = 1) => {
     if (product.stock <= 0) {

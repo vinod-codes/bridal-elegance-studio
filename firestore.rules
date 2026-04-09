@@ -57,6 +57,12 @@ service cloud.firestore {
       allow read: if isAdmin();
     }
 
+    // Addresses: users can read/write their own; admins can read all
+    match /addresses/{addressId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if request.auth != null && (isAdmin() || resource.data.userId == request.auth.uid);
+    }
+
     // Coupons: only admins
     match /coupons/{id} {
       allow read, write: if isAdmin();

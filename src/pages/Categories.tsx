@@ -14,21 +14,21 @@ import catBracelets from "@/assets/cat-combos.jpg";
 
 // Assets and descriptions mapping for core categories
 const CATEGORY_METADATA: Record<string, { image: string, description: string }> = {
-  "Necklaces": { 
-    image: catNecklaces, 
-    description: "Timeless pieces that frame your elegance with intricate craftsmanship." 
+  "Necklaces": {
+    image: catNecklaces,
+    description: "Timeless pieces that frame your elegance with intricate craftsmanship."
   },
-  "Earrings": { 
-    image: catEarrings, 
-    description: "Delicate details for a radiant glow, from studs to dramatic drops." 
+  "Earrings": {
+    image: catEarrings,
+    description: "Delicate details for a radiant glow, from studs to dramatic drops."
   },
-  "Rings": { 
-    image: catRings, 
-    description: "Symbols of love and eternal beauty, crafted in premium gold and stones." 
+  "Rings": {
+    image: catRings,
+    description: "Symbols of love and eternal beauty, crafted in premium gold and stones."
   },
-  "Bracelets": { 
-    image: catBracelets, 
-    description: "Sophisticated accents for every gesture, designed for modern luxury." 
+  "Bracelets": {
+    image: catBracelets,
+    description: "Sophisticated accents for every gesture, designed for modern luxury."
   },
 };
 
@@ -46,13 +46,13 @@ const Categories = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    
+
     const fetchCategories = async () => {
       try {
         const q = query(collection(db, "categories"), orderBy("name", "asc"));
         const snap = await getDocs(q);
-        const fetched = snap.docs.map((d) => ({ 
-          id: d.id, 
+        const fetched = snap.docs.map((d) => ({
+          id: d.id,
           name: d.data().name,
           productCount: d.data().productCount || 0
         }));
@@ -81,7 +81,7 @@ const Categories = () => {
     <div className="min-h-screen bg-background">
       <AnnouncementBar />
       <Header />
-      
+
       <main>
         {/* Hero Section */}
         <section className="relative py-20 md:py-32 overflow-hidden">
@@ -103,9 +103,9 @@ const Categories = () => {
                 image: catNecklaces, // Fallback image
                 description: "Discover our premium collection of artisanal jewelry."
               };
-              
+
               return (
-                <div 
+                <div
                   key={cat.id}
                   className="group relative"
                   onMouseEnter={() => setHoveredCategory(cat.name)}
@@ -113,13 +113,13 @@ const Categories = () => {
                 >
                   <Link to={`/shop?category=${cat.name}`} className="block">
                     <div className="aspect-[16/9] md:aspect-[4/3] overflow-hidden rounded-2xl relative shadow-2xl transition-all duration-500 group-hover:shadow-gold/10">
-                      <img 
-                        src={metadata.image} 
+                      <img
+                        src={metadata.image}
                         alt={cat.name}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
-                      
+
                       {/* Content Over Image */}
                       <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12">
                         <div className="overflow-hidden mb-2">
@@ -133,7 +133,7 @@ const Categories = () => {
                         <p className="text-primary-foreground/80 font-body text-sm md:text-base max-w-sm transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-200 line-clamp-2">
                           {metadata.description}
                         </p>
-                        
+
                         <div className="mt-6 flex items-center gap-2 text-gold group-hover:text-gold-light transition-colors transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-300">
                           <span className="text-sm font-body tracking-wider uppercase">View Collection</span>
                           <div className="h-[1px] w-8 bg-current transition-all duration-500 group-hover:w-12" />
@@ -155,11 +155,11 @@ const Categories = () => {
                 <p className="text-gold text-xs tracking-[0.3em] uppercase font-body mb-2">Handpicked</p>
                 <h2 className="font-heading text-3xl md:text-4xl font-medium">New Arrivals in Jewelry</h2>
               </div>
-              <Link 
-                to="/shop" 
+              <Link
+                to="/shop"
                 className="group flex items-center gap-3 text-sm font-body tracking-wider uppercase text-foreground hover:text-gold transition-colors"
               >
-                Explore Full Shop 
+                Explore Full Shop
                 <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
               </Link>
             </div>
