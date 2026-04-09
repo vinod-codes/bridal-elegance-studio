@@ -201,7 +201,7 @@ const OrderSuccess = () => {
             <p className="text-stone-600 font-body text-sm italic">
                 "Fashion is the most powerful art there is. Its movement, design, and architecture all in one. It shows the world who we are and who we'd like to be."
             </p>
-            <p className="text-gold font-bold text-[10px] uppercase tracking-[0.2em] mt-4">— Bridal Elegance Studio</p>
+            <p className="text-gold font-bold text-[10px] uppercase tracking-[0.2em] mt-4">— Unique Jewelry Studio</p>
           </motion.div>
         </div>
       </main>
