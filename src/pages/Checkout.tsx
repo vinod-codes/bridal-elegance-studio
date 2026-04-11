@@ -4,7 +4,7 @@ import { ArrowLeft, Check, MapPin, Truck, MapPinOff, Loader2 } from "lucide-reac
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "../config/firebase";
-import { collection, addDoc, getDocs, query, where, serverTimestamp, doc, updateDoc, increment, writeBatch } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where, serverTimestamp, doc, updateDoc, increment, writeBatch, getDoc, onSnapshot } from "firebase/firestore";
 import axios from "axios";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -55,6 +55,31 @@ const Checkout = () => {
     delivery_charge: 50,
     estimated_days: 5
   });
+
+  const [deliverySettings, setDeliverySettings] = useState({
+    default_delivery_charge: 50,
+    free_delivery_threshold: 999,
+    force_free_delivery: false
+  });
+
+  useEffect(() => {
+    const docRef = doc(db, "settings", "delivery");
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setDeliverySettings({
+          default_delivery_charge: data.default_delivery_charge ?? 50,
+          free_delivery_threshold: data.free_delivery_threshold ?? 999,
+          force_free_delivery: data.force_free_delivery ?? false
+        });
+        setShippingInfo(prev => ({ ...prev, delivery_charge: data.default_delivery_charge ?? 50 }));
+      }
+    }, (err) => {
+      console.error("Failed to fetch delivery settings:", err);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const [isValidatingPincode, setIsValidatingPincode] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
@@ -110,11 +135,11 @@ const Checkout = () => {
   // Handle Pincode Validation via Firestore
   const validatePincode = async (city: string) => {
     // Standardizing delivery charges for all locations
-    setShippingInfo({ 
+    setShippingInfo(prev => ({ 
+      ...prev,
       serviceable: true, 
-      delivery_charge: 50,
       estimated_days: 5
-    });
+    }));
   };
 
   const [orderFor, setOrderFor] = useState<'self' | 'gift'>('self');
@@ -165,8 +190,8 @@ const Checkout = () => {
 
     setIsPlacingOrder(true);
     try {
-      // Calculate final amount - smart shipping (Free over 999)
-      const shippingCharge = totalPrice >= 999 ? 0 : (shippingInfo.delivery_charge || 0);
+      // Calculate final amount - smart shipping
+      const shippingCharge = (deliverySettings.force_free_delivery || totalPrice >= deliverySettings.free_delivery_threshold) ? 0 : (shippingInfo.delivery_charge || 0);
       const finalAmount = totalPrice + shippingCharge;
 
       const selectedAddress = addresses.find(a => a.id === selectedAddressId);
@@ -255,7 +280,7 @@ const Checkout = () => {
   };
    
   const finalDeliveryCharge = shippingInfo?.serviceable 
-    ? (totalPrice >= 999 ? 0 : shippingInfo.delivery_charge || 0) 
+    ? (deliverySettings.force_free_delivery || totalPrice >= deliverySettings.free_delivery_threshold ? 0 : shippingInfo.delivery_charge || 0) 
     : 0;
   const finalTotal = totalPrice + finalDeliveryCharge;
 
@@ -523,7 +548,7 @@ const Checkout = () => {
                         {!selectedAddressId ? (
                           "—"
                         ) : (
-                          totalPrice >= 999 ? <span className="text-green-600 font-semibold text-xs tracking-wider uppercase">Free</span> : `₹${shippingInfo.delivery_charge}`
+                          (deliverySettings.force_free_delivery || totalPrice >= deliverySettings.free_delivery_threshold) ? <span className="text-green-600 font-semibold text-xs tracking-wider uppercase">Free</span> : `₹${shippingInfo.delivery_charge}`
                         )}
                       </span>
                     </div>
