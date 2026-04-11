@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Plus, Minus, Trash2, ArrowLeft } from "lucide-react";
 import { useCart } from "@/context/CartContext";
@@ -5,11 +6,35 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { db } from "../config/firebase";
+import { doc, onSnapshot } from "firebase/firestore";
 
 const Cart = () => {
   const { items, removeFromCart, updateQuantity, totalPrice } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const [deliverySettings, setDeliverySettings] = useState({
+    free_delivery_threshold: 999,
+    force_free_delivery: false
+  });
+
+  useEffect(() => {
+    const docRef = doc(db, "settings", "delivery");
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setDeliverySettings({
+          free_delivery_threshold: data.free_delivery_threshold ?? 999,
+          force_free_delivery: data.force_free_delivery ?? false
+        });
+      }
+    }, (err) => {
+      console.error("Failed to fetch delivery settings:", err);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleProceedToCheckout = () => {
     if (!user) {
@@ -97,9 +122,9 @@ const Cart = () => {
                       <span>Subtotal</span>
                       <span className="font-medium text-foreground">₹{totalPrice}</span>
                     </div>
-                    {totalPrice < 999 && (
+                    {!deliverySettings.force_free_delivery && totalPrice < deliverySettings.free_delivery_threshold && (
                       <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded text-center">
-                        Add ₹{999 - totalPrice} more for free shipping!
+                        Add ₹{deliverySettings.free_delivery_threshold - totalPrice} more for free shipping!
                       </p>
                     )}
                   </div>
