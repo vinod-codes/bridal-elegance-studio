@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { auth, db } from '../config/firebase';
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     GoogleAuthProvider,
-    signInWithPopup
+    signInWithPopup,
+    sendEmailVerification,
+    sendPasswordResetEmail,
+    applyActionCode,
+    isSignInWithEmailLink,
+    signInWithEmailLink,
+    confirmPasswordReset
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, ChevronRight, Sparkles, User, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -28,15 +34,115 @@ const Auth = () => {
     const [name, setName] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const [authMode, setAuthMode] = useState<string | null>(null);
+    const [oobCode, setOobCode] = useState<string | null>(null);
+
+    useEffect(() => {
+        const queryParams = new URLSearchParams(location.search);
+        const mode = queryParams.get('mode');
+        const code = queryParams.get('oobCode');
+
+        if (mode && code) {
+            setAuthMode(mode);
+            setOobCode(code);
+            
+            if (mode === 'verifyEmail') {
+                handleVerifyEmail(code);
+            }
+        } else if (isSignInWithEmailLink(auth, window.location.href)) {
+            setAuthMode('signIn');
+            handleMagicLinkSignIn();
+        }
+    }, [location]);
+
+    const handleVerifyEmail = async (code: string) => {
+        setLoading(true);
+        try {
+            await applyActionCode(auth, code);
+            toast.success('Email verified successfully!');
+            navigate('/');
+        } catch (error: any) {
+            toast.error('Failed to verify email: ' + error.message);
+        } finally {
+            setLoading(false);
+            setAuthMode(null);
+        }
+    };
+
+    const handleMagicLinkSignIn = async () => {
+        let emailForSignIn = window.localStorage.getItem('emailForSignIn');
+        if (!emailForSignIn) {
+            emailForSignIn = window.prompt('Please provide your email for confirmation');
+        }
+        if (emailForSignIn) {
+            setLoading(true);
+            try {
+                const result = await signInWithEmailLink(auth, emailForSignIn, window.location.href);
+                window.localStorage.removeItem('emailForSignIn');
+                
+                const userSnap = await getDoc(doc(db, 'users', result.user.uid));
+                if (!userSnap.exists()) {
+                    await setDoc(doc(db, 'users', result.user.uid), {
+                        email: result.user.email,
+                        name: result.user.displayName || 'Guest User',
+                        isAdmin: false,
+                        createdAt: serverTimestamp()
+                    });
+                }
+                
+                toast.success('Signed in with Magic Link!');
+                navigate('/');
+            } catch (error: any) {
+                toast.error('Failed to sign in with link: ' + error.message);
+            } finally {
+                setLoading(false);
+                setAuthMode(null);
+            }
+        } else {
+            setAuthMode(null);
+        }
+    };
+
+    const handleResetPassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!oobCode || !password) return;
+        setLoading(true);
+        try {
+            await confirmPasswordReset(auth, oobCode, password);
+            toast.success('Password reset successfully!');
+            navigate('/');
+            setAuthMode(null);
+        } catch (error: any) {
+            toast.error('Failed to reset password: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleForgotPassword = async () => {
+        if (!email) {
+            toast.error('Please enter your email first.');
+            return;
+        }
+        setLoading(true);
+        try {
+            await sendPasswordResetEmail(auth, email, { url: 'https://www.theujs.com/auth' });
+            toast.success('Password reset email sent!');
+        } catch (e: any) {
+            toast.error('Error sending reset email: ' + e.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleGoogleLogin = async () => {
         setLoading(true);
         const provider = new GoogleAuthProvider();
-        // Force the account selection screen
         provider.setCustomParameters({ prompt: 'select_account' });
         
         try {
-            // Using signInWithPopup but catching common configuration errors
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
 
@@ -86,7 +192,10 @@ const Auth = () => {
                     isAdmin: false,
                     createdAt: serverTimestamp()
                 });
-                toast.success('Account created successfully!');
+                
+                await sendEmailVerification(user, { url: 'https://www.theujs.com/auth' });
+                toast.success('Account created! Please check your email to verify.');
+                
                 navigate('/');
             }
         } catch (error: any) {
@@ -96,6 +205,45 @@ const Auth = () => {
             setLoading(false);
         }
     };
+
+    if (authMode === 'resetPassword') {
+        return (
+            <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden selection:bg-gold/30">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="w-full max-w-md z-10">
+                    <div className="text-center mb-10">
+                        <h2 className="text-3xl font-heading font-light tracking-tight mb-2">Reset Password</h2>
+                        <p className="text-[10px] uppercase tracking-[0.3em] text-gray-500 font-bold">Enter Your New Password</p>
+                    </div>
+                    <div className="glass-card bg-white/[0.01] border border-white/5 p-8 rounded-[2rem] shadow-2xl relative group">
+                        <form className="space-y-6" onSubmit={handleResetPassword}>
+                            <div className="group relative">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-gold transition-colors duration-300">
+                                    <Lock size={18} strokeWidth={1.5} />
+                                </div>
+                                <input
+                                    type="password"
+                                    required
+                                    className="w-full bg-white/[0.03] border border-white/5 text-white pl-12 pr-4 py-3.5 rounded-xl focus:outline-none focus:border-gold/30 focus:bg-white/[0.05] transition-all duration-300 placeholder:text-gray-700 text-sm font-light"
+                                    placeholder="New Password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                            </div>
+                            <motion.button
+                                whileHover={{ scale: 1.01, boxShadow: '0 0 20px rgba(212,175,55,0.1)' }}
+                                whileTap={{ scale: 0.99 }}
+                                type="submit"
+                                disabled={loading}
+                                className="w-full py-4 bg-gold hover:bg-gold-light text-black font-black uppercase tracking-[0.3em] text-[10px] rounded-xl transition-all duration-500 flex items-center justify-center gap-3 disabled:opacity-50"
+                            >
+                                {loading ? <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></div> : "Reset Password"}
+                            </motion.button>
+                        </form>
+                    </div>
+                </motion.div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden selection:bg-gold/30">
@@ -189,6 +337,18 @@ const Auth = () => {
                                         onChange={(e) => setPassword(e.target.value)}
                                     />
                                 </div>
+                                
+                                {isLogin && (
+                                    <div className="flex justify-end mt-2">
+                                        <button 
+                                            type="button" 
+                                            onClick={handleForgotPassword}
+                                            className="text-[10px] text-gray-500 hover:text-gold transition-colors"
+                                        >
+                                            Forgot Password?
+                                        </button>
+                                    </div>
+                                )}
                             </motion.div>
                         </AnimatePresence>
 
