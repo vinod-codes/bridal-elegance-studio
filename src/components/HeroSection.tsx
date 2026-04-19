@@ -10,7 +10,7 @@ const HeroSection = () => {
         animate={{ scale: 1 }}
         transition={{ duration: 1.5, ease: "easeOut" }}
         src={heroBridal}
-        alt="Unique Jewelry Studio - Handmade Bridal Jewelry"
+        alt="Unique Jewellery Studio - Handcrafted Jewellery"
         className="absolute inset-0 w-full h-full object-cover"
         width={1920}
         height={1080}
@@ -33,14 +33,14 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
             className="font-heading text-4xl md:text-6xl lg:text-7xl font-light text-primary-foreground leading-[1.1]"
           >
-            Your Dream <br />
-            <span className="italic font-medium">Bridal Jewelry</span>
+            Unique <br />
+            <span className="italic font-medium">Handcrafted Studio</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
             className="text-primary-foreground/80 font-body text-base md:text-lg leading-relaxed"
           >
-            Exquisite handmade jewelry for Haldi, Mehndi & Wedding ceremonies. Each piece tells your story.
+            Exquisite handmade jewellery — Necklaces, Earrings, Rings, Bracelets &amp; more. Each piece crafted with love by our talented artisans.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }}

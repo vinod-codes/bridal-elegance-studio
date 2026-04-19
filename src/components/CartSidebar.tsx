@@ -70,7 +70,8 @@ const CartSidebar = () => {
               items: items.map(({ product, quantity }) => ({
                 productId: product.id,
                 name: product.name,
-                price: product.price,
+                price: product.discountPrice ?? product.price,
+                originalPrice: product.price,
                 image: product.images?.[0] || product.image,
                 quantity,
               })),
@@ -153,12 +154,16 @@ const CartSidebar = () => {
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {items.map(({ product, quantity }) => {
                 const displayImage = product.images?.[0] || product.image || "/placeholder.jpg";
+                const unitPrice = product.discountPrice ?? product.price;
                 return (
                   <div key={product.id} className="flex gap-4 pb-4 border-b border-border/50">
                     <img src={displayImage} alt={product.name} className="w-20 h-20 object-cover rounded" />
                     <div className="flex-1">
                       <h4 className="font-heading text-sm font-medium">{product.name}</h4>
-                      <p className="text-sm text-gold font-medium mt-1">₹{product.price}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-sm text-gold font-medium">₹{unitPrice}</p>
+                        {product.discountPrice && <p className="text-xs text-muted-foreground line-through">₹{product.price}</p>}
+                      </div>
                       <div className="flex items-center gap-2 mt-2">
                         <button onClick={() => updateQuantity(product.id, quantity - 1)} className="p-1 border border-border rounded hover:bg-muted">
                           <Minus size={14} />

@@ -92,7 +92,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const clearCart = useCallback(() => setItems([]), []);
 
   const totalItems = items.reduce((s, i) => s + i.quantity, 0);
-  const totalPrice = items.reduce((s, i) => s + i.product.price * i.quantity, 0);
+  // Use discountPrice (sale price) if set, otherwise use original price
+  const totalPrice = items.reduce((s, i) => {
+    const unitPrice = i.product.discountPrice ?? i.product.price;
+    return s + unitPrice * i.quantity;
+  }, 0);
 
   return (
     <CartContext.Provider
