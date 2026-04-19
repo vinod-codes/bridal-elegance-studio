@@ -70,6 +70,9 @@ const Cart = () => {
                 <div className="space-y-6">
                   {items.map(({ product, quantity }) => {
                     const displayImage = product.images?.[0] || product.image || "/placeholder.jpg";
+                    // Use discountPrice (sale price) if available, else original price
+                    const unitPrice = product.discountPrice ?? product.price;
+                    const originalPrice = product.discountPrice ? product.price : null;
                     return (
                       <div key={product.id} className="flex flex-col sm:flex-row gap-6 pb-6 border-b border-border/50 last:border-0 last:pb-0">
                         <img src={displayImage} alt={product.name} className="w-24 h-24 object-cover rounded shadow-sm" />
@@ -78,8 +81,15 @@ const Cart = () => {
                             <div>
                               <h4 className="font-heading text-lg font-medium">{product.name}</h4>
                               <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{product.description}</p>
+                              {/* Show per-unit price with original if discounted */}
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-sm font-semibold text-gold">₹{unitPrice} each</span>
+                                {originalPrice && (
+                                  <span className="text-xs text-muted-foreground line-through">₹{originalPrice}</span>
+                                )}
+                              </div>
                             </div>
-                            <p className="text-lg text-gold font-semibold">₹{product.price * quantity}</p>
+                            <p className="text-lg text-gold font-semibold">₹{unitPrice * quantity}</p>
                           </div>
                           
                           <div className="flex items-center justify-between mt-4">

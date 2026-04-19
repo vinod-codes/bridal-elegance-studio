@@ -226,7 +226,8 @@ const Checkout = () => {
               items: items.map(({ product, quantity }) => ({
                 productId: product.id,
                 name: product.name,
-                price: product.price,
+                price: product.discountPrice ?? product.price,
+                originalPrice: product.price,
                 image: product.images?.[0] || product.image,
                 quantity,
               })),
@@ -531,7 +532,7 @@ const Checkout = () => {
                           <p className="font-medium text-sm line-clamp-1">{item.product.name}</p>
                           <p className="text-xs text-muted-foreground mt-1">Qty: {item.quantity}</p>
                         </div>
-                        <p className="font-medium font-heading">₹{item.product.price * item.quantity}</p>
+                        <p className="font-medium font-heading">₹{(item.product.discountPrice ?? item.product.price) * item.quantity}</p>
                       </div>
                     ))}
                   </div>
