@@ -269,9 +269,9 @@ const Auth = () => {
                         className="mb-8"
                     >
                         <img
-                            src="/logo.png"
-                            alt="Logo"
-                            className="h-14 w-auto mx-auto filter brightness-110 drop-shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+                            src={authLogo}
+                            alt="Unique Jewelry Studio"
+                            className="h-20 w-auto mx-auto object-contain"
                         />
                     </motion.div>
                     <h2 className="text-3xl font-heading font-light tracking-tight mb-2">

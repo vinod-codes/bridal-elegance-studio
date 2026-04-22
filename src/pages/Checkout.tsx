@@ -205,9 +205,9 @@ const Checkout = () => {
         key: RAZORPAY_KEY,
         amount: Math.round(finalAmount * 100),
         currency: "INR",
-        name: "Bridal Elegance Studio",
-        description: "Exquisite Bridal Jewelry Purchase",
-        image: "/logo.png",
+        name: "Unique Jewelry Studio",
+        description: "Handcrafted Bridal Jewelry Purchase",
+        image: "/favicon.png",
         handler: async function (response: any) {
           try {
             // After successful payment, save order to Firestore
