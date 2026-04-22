@@ -28,8 +28,8 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-      <div className="container flex items-center justify-between h-16 md:h-20 lg:h-24">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
+      <div className="container relative grid h-[4.5rem] grid-cols-[auto_1fr_auto] items-center gap-2 md:h-[5rem] md:grid-cols-[220px_1fr_auto] lg:h-[5.5rem] lg:grid-cols-[280px_1fr_auto]">
         {/* Mobile menu button */}
         <button
           className="md:hidden p-2 text-foreground"
@@ -40,12 +40,12 @@ const Header = () => {
         </button>
 
         {/* Logo */}
-        <Link to="/" className="absolute left-1/2 -translate-x-1/2 md:static md:transform-none flex-shrink-0 flex items-center justify-center z-10 py-2">
-          <img src={headerLogo} alt="Unique Jewelry Studio - Handcrafted Elegance" className="h-12 md:h-16 lg:h-20 w-auto object-contain" />
+        <Link to="/" className="absolute left-1/2 z-10 flex w-[150px] -translate-x-1/2 items-center justify-center overflow-hidden py-2 md:static md:w-[220px] md:translate-x-0 md:justify-self-start lg:w-[280px]">
+          <img src={headerLogo} alt="Unique Jewelry Studio - Handcrafted Elegance" className="max-h-11 w-full origin-left scale-[1.18] object-contain object-left md:max-h-16 md:scale-[1.28] lg:max-h-[4.5rem] lg:scale-[1.34]" />
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center justify-center gap-5 lg:gap-7">
           {navLinks.map((link) => (
             <Link
               key={link.label}
@@ -59,7 +59,7 @@ const Header = () => {
         </nav>
 
         {/* Icons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-self-end gap-2 md:gap-3">
           <button className="p-2 text-foreground hover:text-gold transition-colors" aria-label="Search">
             <Search size={20} />
           </button>
