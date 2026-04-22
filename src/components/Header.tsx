@@ -29,7 +29,7 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-      <div className="container flex items-center justify-between h-16 md:h-20">
+      <div className="container flex items-center justify-between h-20 md:h-28">
         {/* Mobile menu button */}
         <button
           className="md:hidden p-2 text-foreground"
@@ -41,7 +41,7 @@ const Header = () => {
 
         {/* Logo */}
         <Link to="/" className="absolute left-1/2 -translate-x-1/2 md:static md:transform-none flex-shrink-0 flex items-center justify-center z-10">
-          <img src={headerLogo} alt="Unique Jewelry Studio - Handcrafted Elegance" className="h-12 md:h-16 object-contain" />
+          <img src={headerLogo} alt="Unique Jewelry Studio - Handcrafted Elegance" className="h-16 md:h-24 lg:h-28 object-contain" />
         </Link>
 
         {/* Desktop Nav */}
