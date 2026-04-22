@@ -5,6 +5,7 @@ import { Search, User, ShoppingBag, Menu, X, LogOut, Package } from "lucide-reac
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
+import headerLogo from "@/assets/header-logo.png";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -39,8 +40,8 @@ const Header = () => {
         </button>
 
         {/* Logo */}
-        <Link to="/" className="absolute left-1/2 -translate-x-1/2 md:static md:transform-none flex-shrink-0 flex items-center justify-center gap-2 z-10">
-          <img src="/logo.png" alt="Unique Jewelry Studio" className="h-12 md:h-16 py-1 object-contain" />
+        <Link to="/" className="absolute left-1/2 -translate-x-1/2 md:static md:transform-none flex-shrink-0 flex items-center justify-center z-10">
+          <img src={headerLogo} alt="Unique Jewelry Studio - Handcrafted Elegance" className="h-12 md:h-16 object-contain" />
         </Link>
 
         {/* Desktop Nav */}
