@@ -29,7 +29,7 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
-      <div className="container relative grid h-[4.5rem] grid-cols-[auto_1fr_auto] items-center gap-2 md:h-[5rem] md:grid-cols-[180px_1fr_auto] lg:h-[5.5rem] lg:grid-cols-[220px_1fr_auto]">
+      <div className="container relative grid h-[4.5rem] grid-cols-[auto_1fr_auto] items-center gap-2 md:h-[5rem] md:grid-cols-[220px_1fr_auto] lg:h-[5.5rem] lg:grid-cols-[280px_1fr_auto]">
         {/* Mobile menu button */}
         <button
           className="md:hidden p-2 text-foreground"
@@ -40,8 +40,8 @@ const Header = () => {
         </button>
 
         {/* Logo */}
-        <Link to="/" className="absolute left-1/2 z-10 flex w-[120px] -translate-x-1/2 items-center justify-center py-2 md:static md:w-[170px] md:translate-x-0 md:justify-self-start lg:w-[210px]">
-          <img src={headerLogo} alt="Unique Jewelry Studio - Handcrafted Elegance" className="max-h-10 w-full object-contain object-left md:max-h-14 lg:max-h-16" />
+        <Link to="/" className="absolute left-1/2 z-10 flex w-[150px] -translate-x-1/2 items-center justify-center overflow-hidden py-2 md:static md:w-[220px] md:translate-x-0 md:justify-self-start lg:w-[280px]">
+          <img src={headerLogo} alt="Unique Jewelry Studio - Handcrafted Elegance" className="max-h-11 w-full origin-left scale-[1.18] object-contain object-left md:max-h-16 md:scale-[1.28] lg:max-h-[4.5rem] lg:scale-[1.34]" />
         </Link>
 
         {/* Desktop Nav */}
