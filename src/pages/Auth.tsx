@@ -17,6 +17,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, ChevronRight, Sparkles, User, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import authLogo from '@/assets/products-page-logo.png';
 
 const GoogleIcon = () => (
     <svg viewBox="0 0 24 24" className="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg">
@@ -269,9 +270,9 @@ const Auth = () => {
                         className="mb-8"
                     >
                         <img
-                            src="/logo.png"
-                            alt="Logo"
-                            className="h-14 w-auto mx-auto filter brightness-110 drop-shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+                            src={authLogo}
+                            alt="Unique Jewelry Studio"
+                            className="h-20 w-auto mx-auto object-contain"
                         />
                     </motion.div>
                     <h2 className="text-3xl font-heading font-light tracking-tight mb-2">

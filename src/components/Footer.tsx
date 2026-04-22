@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Instagram, Facebook, Mail, Phone } from "lucide-react";
-import ujsWordmark from "@/assets/ujs-wordmark.png";
+import footerLogo from "@/assets/footer-logo.png";
 
 const Footer = () => {
   return (
@@ -8,9 +8,8 @@ const Footer = () => {
       <div className="container py-16 grid grid-cols-1 md:grid-cols-4 gap-10">
         {/* Brand */}
         <div className="space-y-4">
-          <Link to="/" className="inline-flex items-center gap-3">
-            <img src="/logo.png" alt="Unique Jewelry Studio" className="h-20 md:h-24 object-contain" />
-            <img src={ujsWordmark} alt="UJS" className="h-10 md:h-12 object-contain brightness-150" />
+          <Link to="/" className="inline-flex items-center bg-white rounded-lg p-3">
+            <img src={footerLogo} alt="Unique Jewelry Studio - Handcrafted Elegance" className="h-32 md:h-40 object-contain" />
           </Link>
           <p className="text-sm font-body leading-relaxed text-primary-foreground/60">
             Handcrafted bridal jewelry for your most cherished moments. Each piece is made with love and attention to detail.
