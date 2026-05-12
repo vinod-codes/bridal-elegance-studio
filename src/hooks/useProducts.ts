@@ -18,6 +18,7 @@ export interface FirestoreProduct {
   badge?: string;
   inStock?: boolean;
   isVisible?: boolean;
+  approvalStatus?: 'Pending' | 'Approved' | 'Rejected';
   createdAt?: Timestamp | null;
   updatedAt?: Timestamp | null;
 }
@@ -35,7 +36,8 @@ export function useProducts() {
         const q = query(collection(db, "products"), where("isVisible", "==", true), orderBy("createdAt", "desc"));
         const snap = await getDocs(q);
         if (!cancelled) {
-          setProducts(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreProduct)));
+          const allProducts = snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreProduct));
+          setProducts(allProducts.filter(p => p.approvalStatus === 'Approved' || !p.approvalStatus));
         }
       } catch (error: unknown) {
         // Fallback without ordering if index doesn't exist yet
@@ -43,7 +45,9 @@ export function useProducts() {
           const fallbackQ = query(collection(db, "products"), where("isVisible", "==", true));
           const snap = await getDocs(fallbackQ);
           if (!cancelled) {
-            setProducts(snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreProduct)));
+            const allProducts = snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreProduct));
+            // Only show Approved products (or those without a status yet to maintain backward compatibility)
+            setProducts(allProducts.filter(p => p.approvalStatus === 'Approved' || !p.approvalStatus));
           }
         } catch (fallbackErr: unknown) {
           if (!cancelled) {

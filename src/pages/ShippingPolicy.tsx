@@ -45,7 +45,7 @@ const ShippingPolicy = () => {
                   </tr>
                   <tr className="border-t border-border bg-green-50/50">
                     <td className="p-3 font-medium text-foreground">₹999 and above</td>
-                    <td className="p-3 font-medium text-green-700">FREE Shipping 🎉</td>
+                    <td className="p-3 font-medium text-green-700">Complimentary Shipping 🎉</td>
                     <td className="p-3">5–7 business days</td>
                   </tr>
                 </tbody>

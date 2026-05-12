@@ -2,7 +2,7 @@ import { Shield, Truck, Heart, Headphones } from "lucide-react";
 
 const badges = [
   { icon: Shield, title: "Secure Payment", desc: "100% secure checkout" },
-  { icon: Truck, title: "Free Shipping", desc: "On orders above ₹999" },
+  { icon: Truck, title: "Complimentary Shipping", desc: "On orders above ₹999" },
   { icon: Heart, title: "Handmade Quality", desc: "Crafted with love" },
   { icon: Headphones, title: "24/7 Support", desc: "Always here for you" },
 ];

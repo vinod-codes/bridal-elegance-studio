@@ -199,7 +199,7 @@ const CartSidebar = () => {
               </div>
               {totalPrice < 999 && (
                 <p className="text-xs text-muted-foreground text-center">
-                  Add ₹{999 - totalPrice} more for free shipping!
+                  Add ₹{999 - totalPrice} more for complimentary shipping!
                 </p>
               )}
               <button

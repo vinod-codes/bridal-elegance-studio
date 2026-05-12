@@ -549,7 +549,7 @@ const Checkout = () => {
                         {!selectedAddressId ? (
                           "—"
                         ) : (
-                          (deliverySettings.force_free_delivery || totalPrice >= deliverySettings.free_delivery_threshold) ? <span className="text-green-600 font-semibold text-xs tracking-wider uppercase">Free</span> : `₹${shippingInfo.delivery_charge}`
+                          (deliverySettings.force_free_delivery || totalPrice >= deliverySettings.free_delivery_threshold) ? <span className="text-green-600 font-semibold text-xs tracking-wider uppercase">Complimentary</span> : `₹${shippingInfo.delivery_charge}`
                         )}
                       </span>
                     </div>
