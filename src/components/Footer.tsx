@@ -33,6 +33,17 @@ const Footer = () => {
             {["Home", "Shop", "About"].map((l) => (
               <li key={l}><Link to={`/${l === "Home" ? "" : l.toLowerCase()}`} className="hover:text-gold transition-colors">{l}</Link></li>
             ))}
+            <li>
+              <a
+                href="https://shop.theujs.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gold transition-colors inline-flex items-center gap-1"
+                aria-label="Learn jewelry making online course"
+              >
+                🎓 Learn Jewelry Making
+              </a>
+            </li>
           </ul>
         </div>
 
@@ -56,7 +67,7 @@ const Footer = () => {
           <h4 className="font-heading text-lg font-medium text-primary-foreground mb-4">Contact</h4>
           <ul className="space-y-3 text-sm font-body">
             <li className="flex items-center gap-2"><Mail size={14} className="text-gold" /> uniquejewelrystudio@gmail.com</li>
-            <li className="flex items-center gap-2"><Phone size={14} className="text-gold" /> +91 98765 43210</li>
+            <li className="flex items-center gap-2"><Phone size={14} className="text-gold" /> +91 95297 07370</li>
           </ul>
           <h4 className="font-heading text-lg font-medium text-primary-foreground mt-6 mb-3">Policies</h4>
           <ul className="space-y-2 text-sm font-body">

@@ -134,7 +134,7 @@ const Cart = () => {
                     </div>
                     {!deliverySettings.force_free_delivery && totalPrice < deliverySettings.free_delivery_threshold && (
                       <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded text-center">
-                        Add ₹{deliverySettings.free_delivery_threshold - totalPrice} more for free shipping!
+                        Add ₹{deliverySettings.free_delivery_threshold - totalPrice} more for complimentary shipping!
                       </p>
                     )}
                   </div>

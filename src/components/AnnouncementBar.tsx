@@ -1,5 +1,5 @@
 const messages = [
-  "✨ Free Shipping above ₹999",
+  "✨ Complimentary Shipping above ₹999",
   "💍 Handmade Bridal Jewelry",
   "🎨 Custom Orders Available",
 ];
