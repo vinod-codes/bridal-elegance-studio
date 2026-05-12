@@ -67,14 +67,19 @@ const CartSidebar = () => {
               userId: user.uid,
               userEmail: user.email,
               userName: profile?.name || user.displayName || user.email,
-              items: items.map(({ product, quantity }) => ({
-                productId: product.id,
-                name: product.name,
-                price: product.discountPrice ?? product.price,
-                originalPrice: product.price,
-                image: product.images?.[0] || product.image,
-                quantity,
-              })),
+              items: items.map(({ product, quantity, variantId, variantName }) => {
+                const variant = variantId && product.variants ? product.variants.find(v => v.id === variantId) : null;
+                return {
+                  productId: product.id,
+                  variantId: variantId || null,
+                  variantName: variantName || null,
+                  name: product.name,
+                  price: variant?.price ?? product.discountPrice ?? product.price,
+                  originalPrice: product.price,
+                  image: variant?.images?.[0] || product.images?.[0] || product.image,
+                  quantity,
+                };
+              }),
               totalAmount: totalPrice,
               razorpayOrderId: response.razorpay_order_id,
               razorpayPaymentId: response.razorpay_payment_id,
@@ -82,14 +87,27 @@ const CartSidebar = () => {
               createdAt: serverTimestamp(),
             });
 
-            // 4. Update stock in Firestore (best-effort — don't block order on failure)
+            // 4. Update stock in Firestore 
             try {
               const batch = writeBatch(db);
               items.forEach((item) => {
                 const productRef = doc(db, "products", item.product.id);
-                batch.update(productRef, {
-                  stock: increment(-item.quantity),
-                });
+                
+                if (item.variantId && item.product.variants) {
+                  // Decrement stock in the variants array
+                  const updatedVariants = item.product.variants.map(v => {
+                    if (v.id === item.variantId && v.stock !== undefined) {
+                      return { ...v, stock: Math.max(0, v.stock - item.quantity) };
+                    }
+                    return v;
+                  });
+                  batch.update(productRef, { variants: updatedVariants });
+                } else {
+                  // Decrement master stock
+                  batch.update(productRef, {
+                    stock: increment(-item.quantity),
+                  });
+                }
               });
               await batch.commit();
             } catch (stockErr) {
@@ -152,38 +170,43 @@ const CartSidebar = () => {
         ) : (
           <>
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {items.map(({ product, quantity }) => {
-                const displayImage = product.images?.[0] || product.image || "/placeholder.jpg";
-                const unitPrice = product.discountPrice ?? product.price;
+              {items.map(({ product, quantity, variantId, variantName }) => {
+                const variant = variantId && product.variants ? product.variants.find(v => v.id === variantId) : null;
+                const displayImage = variant?.images?.[0] || product.images?.[0] || product.image || "/placeholder.jpg";
+                const unitPrice = variant?.price ?? product.discountPrice ?? product.price;
+                const stockLimit = variant?.stock ?? product.stock ?? 99;
+
                 return (
-                  <div key={product.id} className="flex gap-4 pb-4 border-b border-border/50">
-                    <img src={displayImage} alt={product.name} className="w-20 h-20 object-cover rounded" />
+                  <div key={`${product.id}-${variantId || 'base'}`} className="flex gap-4 pb-4 border-b border-border/50">
+                    <img src={displayImage} alt={product.name} className="w-20 h-20 object-cover rounded shadow-sm" />
                     <div className="flex-1">
                       <h4 className="font-heading text-sm font-medium">{product.name}</h4>
+                      {variantName && (
+                        <p className="text-[10px] font-bold text-gold uppercase tracking-wider mt-0.5">Color: {variantName}</p>
+                      )}
                       <div className="flex items-center gap-2 mt-1">
                         <p className="text-sm text-gold font-medium">₹{unitPrice}</p>
-                        {product.discountPrice && <p className="text-xs text-muted-foreground line-through">₹{product.price}</p>}
+                        {product.discountPrice && !variant?.price && <p className="text-xs text-muted-foreground line-through">₹{product.price}</p>}
                       </div>
                       <div className="flex items-center gap-2 mt-2">
-                        <button onClick={() => updateQuantity(product.id, quantity - 1)} className="p-1 border border-border rounded hover:bg-muted">
+                        <button onClick={() => updateQuantity(product.id, quantity - 1, variantId)} className="p-1 border border-border rounded hover:bg-muted transition-colors">
                           <Minus size={14} />
                         </button>
                         <span className="text-sm font-medium w-6 text-center">{quantity}</span>
                         <button 
                           onClick={() => {
-                            const stockLimit = product.stock ?? 99;
                             if (quantity < stockLimit) {
-                              updateQuantity(product.id, quantity + 1);
+                              updateQuantity(product.id, quantity + 1, variantId);
                             } else {
                               toast.error(`Only ${stockLimit} items left in stock`);
                             }
                           }} 
-                          disabled={quantity >= (product.stock ?? 99)}
-                          className="p-1 border border-border rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
+                          disabled={quantity >= stockLimit}
+                          className="p-1 border border-border rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                           <Plus size={14} />
                         </button>
-                        <button onClick={() => removeFromCart(product.id)} className="ml-auto p-1 text-muted-foreground hover:text-destructive">
+                        <button onClick={() => removeFromCart(product.id, variantId)} className="ml-auto p-1 text-muted-foreground hover:text-destructive transition-colors">
                           <Trash2 size={14} />
                         </button>
                       </div>

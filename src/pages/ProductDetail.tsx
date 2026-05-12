@@ -181,7 +181,15 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false); // ← local state, fixes TS error
+  const [isFavorite, setIsFavorite] = useState(false); 
+  const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
+
+  const currentVariant = product?.variants?.find(v => v.id === selectedVariant);
+  const currentPrice = currentVariant?.price ?? product?.price ?? 0;
+  const currentStock = currentVariant?.stock ?? product?.stock ?? 0;
+  const currentImages = currentVariant?.images && currentVariant.images.length > 0 
+    ? currentVariant.images 
+    : (product?.images?.length ? product.images : [product?.image || "/placeholder.jpg"]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -228,20 +236,20 @@ const ProductDetail = () => {
     );
   }
 
-  const images = product.images?.length > 0 ? product.images : [product.image || "/placeholder.jpg"];
+  const images = currentImages;
   const related = allProducts
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
-  const discount = product.originalPrice && product.originalPrice > product.price
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+  const discount = product.originalPrice && product.originalPrice > currentPrice
+    ? Math.round(((product.originalPrice - currentPrice) / product.originalPrice) * 100)
     : 0;
 
-  const isOutOfStock = (product.stock || 0) <= 0;
+  const isOutOfStock = currentStock <= 0;
 
   const handleBuyNow = () => {
     if (!isOutOfStock) {
-      addToCart(product, qty);
+      addToCart(product, qty, selectedVariant || undefined, currentVariant?.colorName);
       navigate("/cart");
     }
   };
@@ -343,8 +351,8 @@ const ProductDetail = () => {
               {/* Pricing Section */}
               <div className="space-y-1">
                 <div className="flex items-center gap-4">
-                  <span className="text-4xl font-heading text-foreground font-semibold tracking-tight">₹{product.price}</span>
-                  {product.originalPrice && product.originalPrice > product.price && (
+                  <span className="text-4xl font-heading text-foreground font-semibold tracking-tight">₹{currentPrice}</span>
+                  {product.originalPrice && product.originalPrice > currentPrice && (
                     <div className="flex items-center gap-3">
                       <span className="text-xl text-muted-foreground line-through font-body">MRP ₹{product.originalPrice}</span>
                       <span className="text-xl text-orange-500 font-bold font-body">({discount}% OFF)</span>
@@ -355,6 +363,43 @@ const ProductDetail = () => {
                   Inclusive of all taxes
                 </p>
               </div>
+
+              {/* Variant Selection */}
+              {product.variants && product.variants.length > 0 && (
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-heading font-bold uppercase tracking-widest text-foreground">
+                      Select Color: <span className="text-gold ml-2">{currentVariant?.colorName || "Select Option"}</span>
+                    </h3>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {product.variants.map((v) => (
+                      <button
+                        key={v.id}
+                        onClick={() => {
+                          setSelectedVariant(v.id);
+                          setActiveImage(0); // Reset image to first image of variant
+                        }}
+                        className={cn(
+                          "group relative w-10 h-10 rounded-full border-2 transition-all p-0.5",
+                          selectedVariant === v.id ? "border-gold scale-110 shadow-md" : "border-transparent hover:border-muted-foreground/30"
+                        )}
+                        title={v.colorName}
+                      >
+                        <div 
+                          className="w-full h-full rounded-full border border-black/5" 
+                          style={{ backgroundColor: v.colorCode }}
+                        />
+                        {selectedVariant === v.id && (
+                          <div className="absolute -bottom-1 -right-1 bg-gold text-white rounded-full p-0.5 border border-white">
+                            <CheckCircle2 size={10} />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Description Section */}
               <div className="space-y-3">
@@ -380,15 +425,15 @@ const ProductDetail = () => {
                       </button>
                       <span className="px-6 text-xl font-heading font-bold border-x border-muted-foreground/30">{qty}</span>
                       <button
-                        onClick={() => setQty(Math.min(product.stock || 99, qty + 1))}
+                        onClick={() => setQty(Math.min(currentStock || 99, qty + 1))}
                         className="p-3 hover:text-gold transition-colors"
-                        disabled={qty >= (product.stock || 99)}
+                        disabled={qty >= (currentStock || 99)}
                       >
                         <Plus size={18} />
                       </button>
                     </div>
-                    {(product.stock || 0) < 5 && product.stock > 0 && (
-                      <p className="text-xs text-red-500 font-medium">Only {product.stock} left! Hurry up!</p>
+                    {(currentStock || 0) < 5 && currentStock > 0 && (
+                      <p className="text-xs text-red-500 font-medium">Only {currentStock} left! Hurry up!</p>
                     )}
                   </div>
                 )}
@@ -398,8 +443,8 @@ const ProductDetail = () => {
                   <button
                     onClick={() => {
                       if (!isOutOfStock) {
-                        addToCart(product, qty);
-                        toast.success(`Success! ${product.name} added to cart`, {
+                        addToCart(product, qty, selectedVariant || undefined, currentVariant?.colorName);
+                        toast.success(`Success! ${product.name}${currentVariant ? ` (${currentVariant.colorName})` : ''} added to cart`, {
                           action: {
                             label: "View Cart",
                             onClick: () => navigate("/cart")

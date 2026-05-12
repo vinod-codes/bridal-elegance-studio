@@ -2,6 +2,16 @@ import { useEffect, useState } from "react";
 import { collection, getDocs, doc, getDoc, query, orderBy, where, Timestamp } from "firebase/firestore";
 import { db } from "@/config/firebase";
 
+export interface ProductVariant {
+  id: string;
+  colorName: string;
+  colorCode: string;
+  price?: number;
+  stock?: number;
+  images?: string[];
+  sku?: string;
+}
+
 // Firestore product shape — must match what admin saves
 export interface FirestoreProduct {
   id: string;
@@ -19,6 +29,7 @@ export interface FirestoreProduct {
   inStock?: boolean;
   isVisible?: boolean;
   approvalStatus?: 'Pending' | 'Approved' | 'Rejected';
+  variants?: ProductVariant[];
   createdAt?: Timestamp | null;
   updatedAt?: Timestamp | null;
 }

@@ -50,6 +50,24 @@ const ProductCard = ({ product }: Props) => {
             {product.name}
           </h3>
         </Link>
+        
+        {/* Color Variants Indicators */}
+        {product.variants && product.variants.length > 0 && (
+          <div className="flex gap-1.5 mb-2 mt-1">
+            {product.variants.slice(0, 5).map((v) => (
+              <div 
+                key={v.id} 
+                className="w-3 h-3 rounded-full border border-foreground/10" 
+                style={{ backgroundColor: v.colorCode }}
+                title={v.colorName}
+              />
+            ))}
+            {product.variants.length > 5 && (
+              <span className="text-[10px] text-muted-foreground">+{product.variants.length - 5}</span>
+            )}
+          </div>
+        )}
+
         <div className="flex items-center gap-2 mb-3">
           <span className="font-body font-semibold text-foreground">₹{displayPrice}</span>
           {originalPrice && (
