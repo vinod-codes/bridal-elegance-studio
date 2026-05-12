@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
 import catNecklaces from "@/assets/cat-necklaces.jpg";
-import catEarrings from "@/assets/cat-earrings-new.png";
+import catEarrings from "@/assets/cat-earrings-green.png";
 import catRings from "@/assets/cat-rings.jpg";
 import catBracelets from "@/assets/cat-accessories.png";
 import catChokerSets from "@/assets/cat-bridal-new.png";
@@ -17,6 +17,10 @@ import catHaldi from "@/assets/cat-haldi-new.png";
 import catMehndi from "@/assets/cat-mehndi-new.jpg";
 import catCombos from "@/assets/cat-maternity.png";
 import catNath from "@/assets/cat-nath.jpg";
+import catAntiTarnish from "@/assets/cat-anti-tarnish.png";
+import catNavratri from "@/assets/cat-navratri.png";
+import catFabric from "@/assets/cat-fabric.png";
+import catBabyShower from "@/assets/cat-baby-shower.jpg";
 
 const CATEGORY_METADATA: Record<string, { image: string; description: string }> = {
   "Necklaces": {
@@ -72,15 +76,15 @@ const CATEGORY_METADATA: Record<string, { image: string; description: string }> 
     description: "Pearl chain nose rings with floral accents, the finishing bridal touch.",
   },
   "Anti tarnish jewellery": {
-    image: catNecklaces,
+    image: catAntiTarnish,
     description: "Tarnish-resistant pieces that stay brilliant for years, perfect for daily luxury.",
   },
   "Baby Shower jewellery": {
-    image: catHaldi,
+    image: catBabyShower,
     description: "Adorable and elegant jewelry sets specially designed for traditional baby shower ceremonies.",
   },
   "Fabric jewellery": {
-    image: catMehndi,
+    image: catFabric,
     description: "Artisanal handcrafted fabric and floral jewelry, lightweight and perfect for intimate celebrations.",
   },
   "Haldimehndi Jewellery ": {
@@ -88,7 +92,7 @@ const CATEGORY_METADATA: Record<string, { image: string; description: string }> 
     description: "Vibrant yellow and green themed sets for the most joyful moments of your wedding journey.",
   },
   "Navratri jewellery": {
-    image: catMaangTikka,
+    image: catNavratri,
     description: "Bold and colorful oxidised pieces to celebrate the spirit of Navratri with style.",
   },
 };
