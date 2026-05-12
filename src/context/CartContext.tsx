@@ -6,15 +6,17 @@ export type Product = FirestoreProduct;
 
 interface CartItem {
   product: Product;
+  variantId?: string;
+  variantName?: string;
   quantity: number;
 }
 
 interface CartContextType {
   items: CartItem[];
   isOpen: boolean;
-  addToCart: (product: Product, quantity?: number) => void;
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  addToCart: (product: Product, quantity?: number, variantId?: string, variantName?: string) => void;
+  removeFromCart: (productId: string, variantId?: string) => void;
+  updateQuantity: (productId: string, quantity: number, variantId?: string) => void;
   toggleCart: () => void;
   closeCart: () => void;
   clearCart: () => void;
@@ -39,51 +41,66 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem("bridal_cart", JSON.stringify(items));
   }, [items]);
 
-  const addToCart = useCallback((product: Product, quantity: number = 1) => {
-    if (product.stock <= 0) {
-      return; // Fallback security
+  const addToCart = useCallback((product: Product, quantity: number = 1, variantId?: string, variantName?: string) => {
+    // Determine stock based on variant or master
+    let availableStock = product.stock;
+    let price = product.discountPrice ?? product.price;
+
+    if (variantId && product.variants) {
+      const variant = product.variants.find(v => v.id === variantId);
+      if (variant) {
+        if (variant.stock !== undefined) availableStock = variant.stock;
+        if (variant.price !== undefined) price = variant.price;
+      }
+    }
+
+    if (availableStock <= 0) {
+      return; 
     }
 
     setItems((prev) => {
-      const existing = prev.find((i) => i.product.id === product.id);
+      const existing = prev.find((i) => i.product.id === product.id && i.variantId === variantId);
       if (existing) {
         const newQuantity = existing.quantity + quantity;
-        if (newQuantity > product.stock) {
-          // If we are over stock, cap it at stock
+        if (newQuantity > availableStock) {
           return prev.map((i) =>
-            i.product.id === product.id ? { ...i, quantity: product.stock } : i
+            (i.product.id === product.id && i.variantId === variantId) ? { ...i, quantity: availableStock } : i
           );
         }
         return prev.map((i) =>
-          i.product.id === product.id ? { ...i, quantity: newQuantity } : i
+          (i.product.id === product.id && i.variantId === variantId) ? { ...i, quantity: newQuantity } : i
         );
       }
-      // New item, cap quantity at stock just in case
-      const finalQty = Math.min(quantity, product.stock);
-      return [...prev, { product, quantity: finalQty }];
+      const finalQty = Math.min(quantity, availableStock);
+      return [...prev, { product, quantity: finalQty, variantId, variantName }];
     });
     setIsOpen(true);
   }, []);
 
-  const removeFromCart = useCallback((productId: string) => {
-    setItems((prev) => prev.filter((i) => i.product.id !== productId));
+  const removeFromCart = useCallback((productId: string, variantId?: string) => {
+    setItems((prev) => prev.filter((i) => !(i.product.id === productId && i.variantId === variantId)));
   }, []);
 
-  const updateQuantity = useCallback((productId: string, quantity: number) => {
+  const updateQuantity = useCallback((productId: string, quantity: number, variantId?: string) => {
     setItems((prev) => {
-      const item = prev.find(i => i.product.id === productId);
+      const item = prev.find(i => i.product.id === productId && i.variantId === variantId);
       if (!item) return prev;
 
       if (quantity <= 0) {
-        return prev.filter((i) => i.product.id !== productId);
+        return prev.filter((i) => !(i.product.id === productId && i.variantId === variantId));
       }
       
-      // Check stock limit
-      if (quantity > item.product.stock) {
-        return prev.map((i) => (i.product.id === productId ? { ...i, quantity: item.product.stock } : i));
+      let availableStock = item.product.stock;
+      if (variantId && item.product.variants) {
+        const variant = item.product.variants.find(v => v.id === variantId);
+        if (variant && variant.stock !== undefined) availableStock = variant.stock;
       }
 
-      return prev.map((i) => (i.product.id === productId ? { ...i, quantity } : i));
+      if (quantity > availableStock) {
+        return prev.map((i) => (i.product.id === productId && i.variantId === variantId ? { ...i, quantity: availableStock } : i));
+      }
+
+      return prev.map((i) => (i.product.id === productId && i.variantId === variantId ? { ...i, quantity } : i));
     });
   }, []);
 

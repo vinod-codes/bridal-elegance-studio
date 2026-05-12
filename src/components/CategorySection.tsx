@@ -3,14 +3,14 @@ import { Link } from "react-router-dom";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import catNecklaces from "@/assets/cat-necklaces.jpg";
-import catEarrings from "@/assets/cat-earrings.jpg";
+import catEarrings from "@/assets/cat-earrings-new.png";
 import catRings from "@/assets/cat-rings.jpg";
-import catBracelets from "@/assets/cat-bracelets.jpg";
-import catChokerSets from "@/assets/cat-choker-sets.jpg";
+import catBracelets from "@/assets/cat-accessories.png";
+import catChokerSets from "@/assets/cat-bridal-new.png";
 import catMaangTikka from "@/assets/cat-maang-tikka.jpg";
-import catHaldi from "@/assets/cat-haldi-new.jpg";
+import catHaldi from "@/assets/cat-haldi-new.png";
 import catMehndi from "@/assets/cat-mehndi-new.jpg";
-import catCombos from "@/assets/cat-combos-new.jpg";
+import catCombos from "@/assets/cat-maternity.png";
 import catNath from "@/assets/cat-nath.jpg";
 
 const ASSETS_MAP: Record<string, string> = {

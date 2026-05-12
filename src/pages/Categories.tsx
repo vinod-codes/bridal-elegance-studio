@@ -8,14 +8,14 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
 import catNecklaces from "@/assets/cat-necklaces.jpg";
-import catEarrings from "@/assets/cat-earrings.jpg";
+import catEarrings from "@/assets/cat-earrings-new.png";
 import catRings from "@/assets/cat-rings.jpg";
-import catBracelets from "@/assets/cat-bracelets.jpg";
-import catChokerSets from "@/assets/cat-choker-sets.jpg";
+import catBracelets from "@/assets/cat-accessories.png";
+import catChokerSets from "@/assets/cat-bridal-new.png";
 import catMaangTikka from "@/assets/cat-maang-tikka.jpg";
-import catHaldi from "@/assets/cat-haldi-new.jpg";
+import catHaldi from "@/assets/cat-haldi-new.png";
 import catMehndi from "@/assets/cat-mehndi-new.jpg";
-import catCombos from "@/assets/cat-combos-new.jpg";
+import catCombos from "@/assets/cat-maternity.png";
 import catNath from "@/assets/cat-nath.jpg";
 
 const CATEGORY_METADATA: Record<string, { image: string; description: string }> = {
@@ -61,11 +61,11 @@ const CATEGORY_METADATA: Record<string, { image: string; description: string }> 
   },
   "Combos": {
     image: catCombos,
-    description: "Complete jewelry sets bundled for value — necklace, earrings, tikka & more.",
+    description: "Heartfelt maternity and family jewelry sets featuring customized tags for a personal touch.",
   },
   "Bridal Sets": {
     image: catChokerSets,
-    description: "Exquisite full bridal sets for your most unforgettable day.",
+    description: "Exquisite full bridal sets featuring shells and pearls for your most unforgettable day.",
   },
   "Nath": {
     image: catNath,

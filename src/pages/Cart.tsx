@@ -68,18 +68,24 @@ const Cart = () => {
             <div className="flex flex-col lg:flex-row gap-8">
               <div className="flex-1 bg-white rounded-lg shadow-sm p-6">
                 <div className="space-y-6">
-                  {items.map(({ product, quantity }) => {
-                    const displayImage = product.images?.[0] || product.image || "/placeholder.jpg";
-                    // Use discountPrice (sale price) if available, else original price
-                    const unitPrice = product.discountPrice ?? product.price;
-                    const originalPrice = product.discountPrice ? product.price : null;
+                  {items.map(({ product, quantity, variantId, variantName }) => {
+                    // Find specific variant data for images and pricing
+                    const variant = variantId && product.variants ? product.variants.find(v => v.id === variantId) : null;
+                    const displayImage = variant?.images?.[0] || product.images?.[0] || product.image || "/placeholder.jpg";
+                    const unitPrice = variant?.price ?? product.discountPrice ?? product.price;
+                    const originalPrice = variant?.price ? null : (product.discountPrice ? product.price : null);
+                    const stockLimit = variant?.stock ?? product.stock ?? 99;
+
                     return (
-                      <div key={product.id} className="flex flex-col sm:flex-row gap-6 pb-6 border-b border-border/50 last:border-0 last:pb-0">
+                      <div key={`${product.id}-${variantId || 'base'}`} className="flex flex-col sm:flex-row gap-6 pb-6 border-b border-border/50 last:border-0 last:pb-0">
                         <img src={displayImage} alt={product.name} className="w-24 h-24 object-cover rounded shadow-sm" />
                         <div className="flex-1 flex flex-col justify-between">
                           <div className="flex justify-between items-start">
                             <div>
                               <h4 className="font-heading text-lg font-medium">{product.name}</h4>
+                              {variantName && (
+                                <p className="text-xs font-bold text-gold uppercase tracking-wider mt-0.5">Color: {variantName}</p>
+                              )}
                               <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{product.description}</p>
                               {/* Show per-unit price with original if discounted */}
                               <div className="flex items-center gap-2 mt-1">
@@ -94,26 +100,25 @@ const Cart = () => {
                           
                           <div className="flex items-center justify-between mt-4">
                             <div className="flex items-center gap-3">
-                              <button onClick={() => updateQuantity(product.id, quantity - 1)} className="p-1.5 border border-border rounded hover:bg-muted transition-colors">
+                              <button onClick={() => updateQuantity(product.id, quantity - 1, variantId)} className="p-1.5 border border-border rounded hover:bg-muted transition-colors">
                                 <Minus size={14} />
                               </button>
                               <span className="text-base font-medium w-6 text-center">{quantity}</span>
                               <button 
                                 onClick={() => {
-                                  const stockLimit = product.stock ?? 99;
                                   if (quantity < stockLimit) {
-                                    updateQuantity(product.id, quantity + 1);
+                                    updateQuantity(product.id, quantity + 1, variantId);
                                   } else {
                                     toast.error(`Only ${stockLimit} items left in stock`);
                                   }
                                 }} 
-                                disabled={quantity >= (product.stock ?? 99)}
+                                disabled={quantity >= stockLimit}
                                 className="p-1.5 border border-border rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                               >
                                 <Plus size={14} />
                               </button>
                             </div>
-                            <button onClick={() => removeFromCart(product.id)} className="flex items-center text-sm text-muted-foreground hover:text-destructive transition-colors">
+                            <button onClick={() => removeFromCart(product.id, variantId)} className="flex items-center text-sm text-muted-foreground hover:text-destructive transition-colors">
                               <Trash2 size={16} className="mr-1" /> Remove
                             </button>
                           </div>
