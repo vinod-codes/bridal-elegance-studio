@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import catNecklaces from "@/assets/cat-necklaces.jpg";
-import catEarrings from "@/assets/cat-earrings-new.png";
+import catEarrings from "@/assets/cat-earrings-green.png";
 import catRings from "@/assets/cat-rings.jpg";
 import catBracelets from "@/assets/cat-accessories.png";
 import catChokerSets from "@/assets/cat-bridal-new.png";
@@ -12,6 +12,10 @@ import catHaldi from "@/assets/cat-haldi-new.png";
 import catMehndi from "@/assets/cat-mehndi-new.jpg";
 import catCombos from "@/assets/cat-maternity.png";
 import catNath from "@/assets/cat-nath.jpg";
+import catAntiTarnish from "@/assets/cat-anti-tarnish.png";
+import catNavratri from "@/assets/cat-navratri.png";
+import catFabric from "@/assets/cat-fabric.png";
+import catBabyShower from "@/assets/cat-baby-shower.jpg";
 
 const ASSETS_MAP: Record<string, string> = {
   "Necklaces": catNecklaces,
@@ -27,11 +31,11 @@ const ASSETS_MAP: Record<string, string> = {
   "Bridal Sets": catChokerSets,
   "Haldi": catHaldi,
   "Mehndi": catMehndi,
-  "Anti tarnish jewellery": catNecklaces,
-  "Baby Shower jewellery": catHaldi,
-  "Fabric jewellery": catMehndi,
+  "Anti tarnish jewellery": catAntiTarnish,
+  "Baby Shower jewellery": catBabyShower,
+  "Fabric jewellery": catFabric,
   "Haldimehndi Jewellery ": catCombos,
-  "Navratri jewellery": catMaangTikka,
+  "Navratri jewellery": catNavratri,
 };
 
 // Fallback images consistent with Categories page
