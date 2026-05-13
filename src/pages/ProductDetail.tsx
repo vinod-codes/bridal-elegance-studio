@@ -195,6 +195,14 @@ const ProductDetail = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
+  useEffect(() => {
+    if (!product?.variants?.length) return;
+    const variantExists = product.variants.some((v) => v.id === selectedVariant);
+    if (!variantExists) {
+      setSelectedVariant(product.variants[0].id);
+    }
+  }, [product, selectedVariant]);
+
   if (loading) {
     return (
       <div className="min-h-screen animate-pulse">
@@ -384,11 +392,11 @@ const ProductDetail = () => {
                           "group relative w-10 h-10 rounded-full border-2 transition-all p-0.5",
                           selectedVariant === v.id ? "border-gold scale-110 shadow-md" : "border-transparent hover:border-muted-foreground/30"
                         )}
-                        title={v.colorName}
+                        title={v.colorName || v.variantName}
                       >
                         <div 
                           className="w-full h-full rounded-full border border-black/5" 
-                          style={{ backgroundColor: v.colorCode }}
+                          style={{ backgroundColor: v.colorHex || v.colorCode || '#eee' }}
                         />
                         {selectedVariant === v.id && (
                           <div className="absolute -bottom-1 -right-1 bg-gold text-white rounded-full p-0.5 border border-white">

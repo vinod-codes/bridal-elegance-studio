@@ -1,112 +1,151 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs, doc, getDoc, query, orderBy, where, Timestamp } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  where,
+  Timestamp,
+} from "firebase/firestore";
 import { db } from "@/config/firebase";
 
 export interface ProductVariant {
   id: string;
-  colorName: string;
-  colorCode: string;
+  variantName?: string;
+  colorName?: string;
+  colorHex?: string;
   price?: number;
-  stock?: number;
-  images?: string[];
+  originalPrice?: number;
+  discountPrice?: number;
   sku?: string;
+  previewImage?: string;
+  galleryImages?: string[];
+  inventory?: number;
+  stock?: number;
+  status?: string;
 }
 
-// Firestore product shape — must match what admin saves
 export interface FirestoreProduct {
   id: string;
   name: string;
+  subtitle?: string;
   price: number;
-  originalPrice?: number | null; 
-  discountPrice?: number | null; 
-  category: string;       
-  stock: number;
-  images?: string[];      
-  image?: string;         // fallback
+  originalPrice?: number | null;
+  discountPrice?: number | null;
+  category: string;
+  stock?: number;
+  inventory?: number;
+  images?: string[];
+  image?: string;
   description?: string;
   material?: string;
   badge?: string;
+  highlights?: string[];
+  specifications?: Array<{ label: string; value: string }>;
   inStock?: boolean;
   isVisible?: boolean;
-  approvalStatus?: 'Pending' | 'Approved' | 'Rejected';
+  approvalStatus?: "Pending" | "Approved" | "Rejected";
   variants?: ProductVariant[];
   createdAt?: Timestamp | null;
   updatedAt?: Timestamp | null;
 }
 
-/** Fetch ALL products from Firestore, ordered by creation time */
+const mapSnapshotToProducts = (snap: any) =>
+  snap.docs
+    .map((doc: any) => ({ id: doc.id, ...doc.data() } as FirestoreProduct))
+    .filter((product) => product.approvalStatus === "Approved" || !product.approvalStatus);
+
 export function useProducts() {
   const [products, setProducts] = useState<FirestoreProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-    const fetch = async () => {
-      try {
-        const q = query(collection(db, "products"), where("isVisible", "==", true), orderBy("createdAt", "desc"));
-        const snap = await getDocs(q);
-        if (!cancelled) {
-          const allProducts = snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreProduct));
-          setProducts(allProducts.filter(p => p.approvalStatus === 'Approved' || !p.approvalStatus));
-        }
-      } catch (error: unknown) {
-        // Fallback without ordering if index doesn't exist yet
-        try {
-          const fallbackQ = query(collection(db, "products"), where("isVisible", "==", true));
-          const snap = await getDocs(fallbackQ);
-          if (!cancelled) {
-            const allProducts = snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreProduct));
-            // Only show Approved products (or those without a status yet to maintain backward compatibility)
-            setProducts(allProducts.filter(p => p.approvalStatus === 'Approved' || !p.approvalStatus));
-          }
-        } catch (fallbackErr: unknown) {
-          if (!cancelled) {
-            const message = fallbackErr instanceof Error ? fallbackErr.message : "An unknown error occurred";
-            setError(message);
-          }
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
+    const q = query(
+      collection(db, "products"),
+      where("isVisible", "==", true),
+      orderBy("createdAt", "desc")
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        setProducts(mapSnapshotToProducts(snapshot));
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Product list listener failed", err);
+        setError(err instanceof Error ? err.message : "Unable to load products");
+        setLoading(false);
       }
-    };
-    fetch();
-    return () => { cancelled = true; };
+    );
+
+    return () => unsubscribe();
   }, []);
 
   return { products, loading, error };
 }
 
-/** Fetch a single product by its Firestore document ID */
 export function useProduct(id: string | undefined) {
   const [product, setProduct] = useState<FirestoreProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [baseProduct, setBaseProduct] = useState<FirestoreProduct | null>(null);
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
 
   useEffect(() => {
     if (!id) {
       setLoading(false);
       return;
     }
-    let cancelled = false;
-    const fetch = async () => {
-      try {
-        const snap = await getDoc(doc(db, "products", id));
-        if (!cancelled) {
-          setProduct(snap.exists() ? ({ id: snap.id, ...snap.data() } as FirestoreProduct) : null);
+
+    const productRef = doc(db, "products", id);
+    const variantsCol = collection(db, "products", id, "variants");
+    const variantQuery = query(variantsCol, orderBy("colorName"));
+
+    const unsubscribeProduct = onSnapshot(
+      productRef,
+      (snap) => {
+        if (!snap.exists()) {
+          setBaseProduct(null);
+          setLoading(false);
+          return;
         }
-      } catch (err: unknown) {
-        if (!cancelled) {
-          const message = err instanceof Error ? err.message : "An unknown error occurred";
-          setError(message);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
+        setBaseProduct({ id: snap.id, ...snap.data() } as FirestoreProduct);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Product detail listener failed", err);
+        setError(err instanceof Error ? err.message : "Unable to load product");
+        setLoading(false);
       }
+    );
+
+    const unsubscribeVariants = onSnapshot(
+      variantQuery,
+      (snap) => {
+        setVariants(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as ProductVariant)));
+      },
+      (err) => {
+        console.error("Variant listener failed", err);
+        setError(err instanceof Error ? err.message : "Unable to load variants");
+      }
+    );
+
+    return () => {
+      unsubscribeProduct();
+      unsubscribeVariants();
     };
-    fetch();
-    return () => { cancelled = true; };
   }, [id]);
+
+  useEffect(() => {
+    if (!baseProduct) {
+      setProduct(null);
+      return;
+    }
+    setProduct({ ...baseProduct, variants });
+  }, [baseProduct, variants]);
 
   return { product, loading, error };
 }
