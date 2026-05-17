@@ -21,6 +21,8 @@ export interface ProductVariant {
   sku?: string;
   previewImage?: string;
   galleryImages?: string[];
+  images?: string[];
+  size?: string;
   inventory?: number;
   stock?: number;
   status?: string;
