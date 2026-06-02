@@ -20,7 +20,7 @@ import catHaldiMehndi from "@/assets/cat-haldi-mehndi.png";
 import catKundan from "@/assets/cat-kundan.jpeg";
 import catPearls from "@/assets/cat-pearls.jpeg";
 
-// Raw category → asset mapping (exact names as stored in Firestore)
+// Raw category -> asset mapping (exact names as stored in Firestore)
 const RAW_ASSETS_MAP: Record<string, string> = {
   "Necklaces": catNecklaces,
   "Earrings": catEarrings,
@@ -38,7 +38,6 @@ const RAW_ASSETS_MAP: Record<string, string> = {
   "Anti tarnish jewellery": catAntiTarnish,
   "Baby Shower jewellery": catBabyShower,
   "Fabric jewellery": catFabric,
-  "Haldimehndi Jewellery ": catHaldiMehndi,
   "Haldimehndi Jewellery": catHaldiMehndi,
   "Navratri jewellery": catNavratri,
   "Kundan Jewellery": catKundan,
@@ -108,12 +107,17 @@ const CategorySection = () => {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         {categories.slice(0, 4).map((cat, index) => {
+<<<<<<< HEAD
           // Priority: admin-uploaded URL > local asset map > fallback
           const image =
             cat.imageUrl ||
             resolveCategoryImage(cat.name) ||
             FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
 
+=======
+          const image = resolveCategoryImage(cat.name) || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+          
+>>>>>>> 3d4f55f61cb5fb362076671a915f767ea2597765
           return (
             <Link
               key={cat.id}
