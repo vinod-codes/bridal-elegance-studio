@@ -21,6 +21,9 @@ import catAntiTarnish from "@/assets/cat-anti-tarnish.png";
 import catNavratri from "@/assets/cat-navratri.png";
 import catFabric from "@/assets/cat-fabric.png";
 import catBabyShower from "@/assets/cat-baby-shower.jpg";
+import catHaldiMehndi from "@/assets/cat-haldi-mehndi.png";
+import catKundan from "@/assets/cat-kundan.jpeg";
+import catPearls from "@/assets/cat-pearls.jpeg";
 
 const CATEGORY_METADATA: Record<string, { image: string; description: string }> = {
   "Necklaces": {
@@ -88,8 +91,20 @@ const CATEGORY_METADATA: Record<string, { image: string; description: string }> 
     description: "Artisanal handcrafted fabric and floral jewelry, lightweight and perfect for intimate celebrations.",
   },
   "Haldimehndi Jewellery ": {
-    image: catCombos,
-    description: "Vibrant yellow and green themed sets for the most joyful moments of your wedding journey.",
+    image: catHaldiMehndi,
+    description: "Elegant pearl and shell sets crafted for radiant Haldi and Mehndi ceremonies.",
+  },
+  "Haldimehndi Jewellery": {
+    image: catHaldiMehndi,
+    description: "Elegant pearl and shell sets crafted for radiant Haldi and Mehndi ceremonies.",
+  },
+  "Kundan Jewellery": {
+    image: catKundan,
+    description: "Regal kundan pieces with vibrant stones and pearls for timeless traditional grace.",
+  },
+  "Pearls Jewellery": {
+    image: catPearls,
+    description: "Luminous multi-strand pearl sets that bring effortless sophistication to every occasion.",
   },
   "Navratri jewellery": {
     image: catNavratri,

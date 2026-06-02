@@ -58,7 +58,7 @@ const ProductCard = ({ product }: Props) => {
               <div 
                 key={v.id} 
                 className="w-3 h-3 rounded-full border border-foreground/10" 
-                style={{ backgroundColor: v.colorCode }}
+                style={{ backgroundColor: v.colorHex }}
                 title={v.colorName}
               />
             ))}
