@@ -33,17 +33,6 @@ const Footer = () => {
             {["Home", "Shop", "About"].map((l) => (
               <li key={l}><Link to={`/${l === "Home" ? "" : l.toLowerCase()}`} className="hover:text-gold transition-colors">{l}</Link></li>
             ))}
-            <li>
-              <a
-                href="https://shop.theujs.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-gold transition-colors inline-flex items-center gap-1"
-                aria-label="Learn jewelry making online course"
-              >
-                🎓 Learn Jewelry Making
-              </a>
-            </li>
           </ul>
         </div>
 

@@ -7,7 +7,7 @@ import TrustBadges from "@/components/TrustBadges";
 import GoogleReviews from "@/components/GoogleReviews";
 import VideoGallery from "@/components/VideoGallery";
 import Footer from "@/components/Footer";
-import CoursePromoBanner from "@/components/CoursePromoBanner";
+
 
 const Index = () => {
   return (
@@ -21,7 +21,7 @@ const Index = () => {
         <TrustBadges />
         <VideoGallery />
         <GoogleReviews />
-        <CoursePromoBanner />
+        
       </main>
       <Footer />
     </div>
