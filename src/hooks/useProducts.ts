@@ -32,8 +32,11 @@ export interface FirestoreProduct {
   id: string;
   name: string;
   subtitle?: string;
+  /** The original MRP (Maximum Retail Price) of the product */
   price: number;
+  /** Legacy field for original price. Prefer `price` for MRP. */
   originalPrice?: number | null;
+  /** The actual selling price (sale price) of the product */
   discountPrice?: number | null;
   category: string;
   stock?: number;
