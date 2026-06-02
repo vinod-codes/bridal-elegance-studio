@@ -107,17 +107,11 @@ const CategorySection = () => {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         {categories.slice(0, 4).map((cat, index) => {
-<<<<<<< HEAD
           // Priority: admin-uploaded URL > local asset map > fallback
           const image =
             cat.imageUrl ||
             resolveCategoryImage(cat.name) ||
             FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
-
-=======
-          const image = resolveCategoryImage(cat.name) || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
-          
->>>>>>> 3d4f55f61cb5fb362076671a915f767ea2597765
           return (
             <Link
               key={cat.id}
