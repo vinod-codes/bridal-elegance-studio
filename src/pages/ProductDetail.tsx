@@ -197,7 +197,8 @@ const ProductDetail = () => {
   }
   const selectedVariantId = currentVariant?.id;
 
-  const currentPrice = currentVariant?.price ?? product?.price ?? 0;
+  const currentPrice = currentVariant?.price ?? product?.discountPrice ?? product?.price ?? 0;
+  const originalPrice = currentVariant?.price ? null : (product?.discountPrice ? product?.price : null);
   const currentStock = currentVariant?.stock ?? product?.stock ?? 0;
   
   let variantImages: string[] = [];
@@ -271,8 +272,8 @@ const ProductDetail = () => {
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
-  const discount = product.originalPrice && product.originalPrice > currentPrice
-    ? Math.round(((product.originalPrice - currentPrice) / product.originalPrice) * 100)
+  const discount = originalPrice && originalPrice > currentPrice
+    ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
     : 0;
 
   const isOutOfStock = currentStock <= 0;
@@ -388,9 +389,9 @@ const ProductDetail = () => {
               <div className="p-6 rounded-2xl bg-[#f8f9fa] border border-[#e9ecef] space-y-2">
                 <div className="flex items-end gap-3 flex-wrap">
                   <span className="text-4xl font-heading text-[#2c3e50] font-medium tracking-tight">₹{currentPrice.toLocaleString('en-IN')}</span>
-                  {product.originalPrice && product.originalPrice > currentPrice && (
+                  {originalPrice && originalPrice > currentPrice && (
                     <>
-                      <span className="text-lg text-[#7f8c8d] line-through font-body mb-1">₹{product.originalPrice.toLocaleString('en-IN')}</span>
+                      <span className="text-lg text-[#7f8c8d] line-through font-body mb-1">₹{originalPrice.toLocaleString('en-IN')}</span>
                       <span className="text-sm text-emerald-600 font-bold font-body mb-1.5 px-2 py-0.5 bg-emerald-50 rounded-md border border-emerald-100">
                         Save {discount}%
                       </span>

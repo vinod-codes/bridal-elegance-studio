@@ -17,33 +17,13 @@ import catNavratri from "@/assets/cat-navratri.png";
 import catFabric from "@/assets/cat-fabric.png";
 import catBabyShower from "@/assets/cat-baby-shower.jpg";
 
-const ASSETS_MAP: Record<string, string> = {
-  "Necklaces": catNecklaces,
-  "Earrings": catEarrings,
-  "Rings": catRings,
-  "Bracelets": catBracelets,
-  "Choker Sets": catChokerSets,
-  "Maang Tikka": catMaangTikka,
-  "Haldi Jewelry": catHaldi,
-  "Mehndi Jewelry": catMehndi,
-  "Combos": catCombos,
-  "Nath": catNath,
-  "Bridal Sets": catChokerSets,
-  "Haldi": catHaldi,
-  "Mehndi": catMehndi,
-  "Anti tarnish jewellery": catAntiTarnish,
-  "Baby Shower jewellery": catBabyShower,
-  "Fabric jewellery": catFabric,
-  "Haldimehndi Jewellery ": catCombos,
-  "Navratri jewellery": catNavratri,
-};
-
 // Fallback images consistent with Categories page
 const FALLBACK_IMAGES = [catNecklaces, catEarrings, catRings, catBracelets, catChokerSets, catMaangTikka, catHaldi, catMehndi, catCombos, catNath];
 
 interface CategoryDoc {
   id: string;
   name: string;
+  imageUrl?: string;
 }
 
 const CategorySection = () => {
@@ -55,7 +35,11 @@ const CategorySection = () => {
       try {
         const q = query(collection(db, "categories"), orderBy("name", "asc"));
         const snap = await getDocs(q);
-        const fetched = snap.docs.map((d) => ({ id: d.id, name: d.data().name }));
+        const fetched = snap.docs.map((d) => ({ 
+          id: d.id, 
+          name: d.data().name,
+          imageUrl: d.data().imageUrl 
+        }));
         setCategories(fetched);
       } catch (error) {
         console.error("Error fetching categories for home:", error);
@@ -85,7 +69,7 @@ const CategorySection = () => {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         {categories.slice(0, 4).map((cat, index) => {
-          const image = ASSETS_MAP[cat.name] || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+          const image = cat.imageUrl || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
           
           return (
             <Link

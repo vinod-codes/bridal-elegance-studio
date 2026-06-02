@@ -103,6 +103,7 @@ const FALLBACK_IMAGES = [catNecklaces, catEarrings, catRings, catBracelets, catC
 interface CategoryDoc {
   id: string;
   name: string;
+  imageUrl?: string;
   productCount?: number;
 }
 
@@ -122,6 +123,7 @@ const Categories = () => {
         const fetched = snap.docs.map((d) => ({
           id: d.id,
           name: d.data().name,
+          imageUrl: d.data().imageUrl,
           productCount: d.data().productCount || 0,
         }));
         setDbCategories(fetched);
@@ -170,6 +172,8 @@ const Categories = () => {
                 image: FALLBACK_IMAGES[index % FALLBACK_IMAGES.length],
                 description: "Discover our premium collection of artisanal jewelry.",
               };
+              
+              const displayImage = cat.imageUrl || metadata.image;
 
               return (
                 <div
@@ -181,7 +185,7 @@ const Categories = () => {
                   <Link to={`/shop?category=${cat.name}`} className="block">
                     <div className="aspect-[16/9] md:aspect-[4/3] overflow-hidden rounded-2xl relative shadow-2xl transition-all duration-500 group-hover:shadow-gold/10">
                       <img
-                        src={metadata.image}
+                        src={displayImage}
                         alt={cat.name}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
