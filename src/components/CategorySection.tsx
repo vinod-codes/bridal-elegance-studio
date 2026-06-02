@@ -20,7 +20,7 @@ import catHaldiMehndi from "@/assets/cat-haldi-mehndi.png";
 import catKundan from "@/assets/cat-kundan.jpeg";
 import catPearls from "@/assets/cat-pearls.jpeg";
 
-const ASSETS_MAP: Record<string, string> = {
+const RAW_ASSETS_MAP: Record<string, string> = {
   "Necklaces": catNecklaces,
   "Earrings": catEarrings,
   "Rings": catRings,
@@ -37,12 +37,16 @@ const ASSETS_MAP: Record<string, string> = {
   "Anti tarnish jewellery": catAntiTarnish,
   "Baby Shower jewellery": catBabyShower,
   "Fabric jewellery": catFabric,
-  "Haldimehndi Jewellery ": catHaldiMehndi,
   "Haldimehndi Jewellery": catHaldiMehndi,
   "Navratri jewellery": catNavratri,
   "Kundan Jewellery": catKundan,
   "Pearls Jewellery": catPearls,
 };
+const normalizeKey = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+const ASSETS_MAP: Record<string, string> = Object.fromEntries(
+  Object.entries(RAW_ASSETS_MAP).map(([k, v]) => [normalizeKey(k), v])
+);
+export const resolveCategoryImage = (name: string): string | undefined => ASSETS_MAP[normalizeKey(name)];
 
 // Fallback images consistent with Categories page
 const FALLBACK_IMAGES = [catNecklaces, catEarrings, catRings, catBracelets, catChokerSets, catMaangTikka, catHaldi, catMehndi, catCombos, catNath];
@@ -91,7 +95,7 @@ const CategorySection = () => {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         {categories.slice(0, 4).map((cat, index) => {
-          const image = ASSETS_MAP[cat.name] || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+          const image = resolveCategoryImage(cat.name) || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
           
           return (
             <Link
