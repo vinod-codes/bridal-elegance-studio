@@ -16,14 +16,53 @@ import catAntiTarnish from "@/assets/cat-anti-tarnish.png";
 import catNavratri from "@/assets/cat-navratri.png";
 import catFabric from "@/assets/cat-fabric.png";
 import catBabyShower from "@/assets/cat-baby-shower.jpg";
+import catHaldiMehndi from "@/assets/cat-haldi-mehndi.png";
+import catKundan from "@/assets/cat-kundan.jpeg";
+import catPearls from "@/assets/cat-pearls.jpeg";
 
-// Fallback images consistent with Categories page
+// Raw category → asset mapping (exact names as stored in Firestore)
+const RAW_ASSETS_MAP: Record<string, string> = {
+  "Necklaces": catNecklaces,
+  "Earrings": catEarrings,
+  "Rings": catRings,
+  "Bracelets": catBracelets,
+  "Choker Sets": catChokerSets,
+  "Maang Tikka": catMaangTikka,
+  "Haldi Jewelry": catHaldi,
+  "Mehndi Jewelry": catMehndi,
+  "Combos": catCombos,
+  "Nath": catNath,
+  "Bridal Sets": catChokerSets,
+  "Haldi": catHaldi,
+  "Mehndi": catMehndi,
+  "Anti tarnish jewellery": catAntiTarnish,
+  "Baby Shower jewellery": catBabyShower,
+  "Fabric jewellery": catFabric,
+  "Haldimehndi Jewellery ": catHaldiMehndi,
+  "Haldimehndi Jewellery": catHaldiMehndi,
+  "Navratri jewellery": catNavratri,
+  "Kundan Jewellery": catKundan,
+  "Pearls Jewellery": catPearls,
+};
+
+// Normalise a key for fuzzy matching (lowercase, alphanumeric only)
+const normalizeKey = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+const ASSETS_MAP: Record<string, string> = Object.fromEntries(
+  Object.entries(RAW_ASSETS_MAP).map(([k, v]) => [normalizeKey(k), v])
+);
+
+/** Resolve a category name to its local asset image (case/space-insensitive). */
+export const resolveCategoryImage = (name: string): string | undefined =>
+  ASSETS_MAP[normalizeKey(name)];
+
+// Fallback images to cycle through for unknown categories
 const FALLBACK_IMAGES = [catNecklaces, catEarrings, catRings, catBracelets, catChokerSets, catMaangTikka, catHaldi, catMehndi, catCombos, catNath];
 
 interface CategoryDoc {
   id: string;
   name: string;
-  imageUrl?: string;
+  imageUrl?: string; // admin-uploaded image takes priority over local assets
 }
 
 const CategorySection = () => {
@@ -35,10 +74,10 @@ const CategorySection = () => {
       try {
         const q = query(collection(db, "categories"), orderBy("name", "asc"));
         const snap = await getDocs(q);
-        const fetched = snap.docs.map((d) => ({ 
-          id: d.id, 
+        const fetched = snap.docs.map((d) => ({
+          id: d.id,
           name: d.data().name,
-          imageUrl: d.data().imageUrl 
+          imageUrl: d.data().imageUrl,
         }));
         setCategories(fetched);
       } catch (error) {
@@ -60,8 +99,8 @@ const CategorySection = () => {
           <p className="text-gold text-xs tracking-[0.3em] uppercase font-body mb-2">Collections</p>
           <h2 className="font-heading text-3xl md:text-4xl font-medium">Shop by Category</h2>
         </div>
-        <Link 
-          to="/categories" 
+        <Link
+          to="/categories"
           className="group flex items-center gap-2 text-xs font-body tracking-wider uppercase text-foreground hover:text-gold transition-colors"
         >
           View All <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
@@ -69,8 +108,12 @@ const CategorySection = () => {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         {categories.slice(0, 4).map((cat, index) => {
-          const image = cat.imageUrl || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
-          
+          // Priority: admin-uploaded URL > local asset map > fallback
+          const image =
+            cat.imageUrl ||
+            resolveCategoryImage(cat.name) ||
+            FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+
           return (
             <Link
               key={cat.id}
