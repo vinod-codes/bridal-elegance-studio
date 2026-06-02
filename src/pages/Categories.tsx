@@ -181,7 +181,11 @@ const Categories = () => {
         <section className="container pb-24">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
             {dbCategories.map((cat, index) => {
-              const metadata = CATEGORY_METADATA[cat.name] || {
+              const normKey = cat.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+              const metaEntry = Object.entries(CATEGORY_METADATA).find(
+                ([k]) => k.toLowerCase().replace(/[^a-z0-9]/g, "") === normKey
+              );
+              const metadata = metaEntry?.[1] || {
                 image: FALLBACK_IMAGES[index % FALLBACK_IMAGES.length],
                 description: "Discover our premium collection of artisanal jewelry.",
               };
