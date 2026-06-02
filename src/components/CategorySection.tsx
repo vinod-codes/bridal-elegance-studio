@@ -16,6 +16,9 @@ import catAntiTarnish from "@/assets/cat-anti-tarnish.png";
 import catNavratri from "@/assets/cat-navratri.png";
 import catFabric from "@/assets/cat-fabric.png";
 import catBabyShower from "@/assets/cat-baby-shower.jpg";
+import catHaldiMehndi from "@/assets/cat-haldi-mehndi.png";
+import catKundan from "@/assets/cat-kundan.jpeg";
+import catPearls from "@/assets/cat-pearls.jpeg";
 
 const ASSETS_MAP: Record<string, string> = {
   "Necklaces": catNecklaces,
@@ -34,8 +37,11 @@ const ASSETS_MAP: Record<string, string> = {
   "Anti tarnish jewellery": catAntiTarnish,
   "Baby Shower jewellery": catBabyShower,
   "Fabric jewellery": catFabric,
-  "Haldimehndi Jewellery ": catCombos,
+  "Haldimehndi Jewellery ": catHaldiMehndi,
+  "Haldimehndi Jewellery": catHaldiMehndi,
   "Navratri jewellery": catNavratri,
+  "Kundan Jewellery": catKundan,
+  "Pearls Jewellery": catPearls,
 };
 
 // Fallback images consistent with Categories page
