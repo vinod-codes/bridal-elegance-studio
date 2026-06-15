@@ -47,13 +47,13 @@ const RAW_ASSETS_MAP: Record<string, string> = {
 // Normalise a key for fuzzy matching (lowercase, alphanumeric only)
 const normalizeKey = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
-const ASSETS_MAP: Record<string, string> = Object.fromEntries(
+const ASSETS_MAP: Map<string, string> = new Map(
   Object.entries(RAW_ASSETS_MAP).map(([k, v]) => [normalizeKey(k), v])
 );
 
 /** Resolve a category name to its local asset image (case/space-insensitive). */
 export const resolveCategoryImage = (name: string): string | undefined =>
-  ASSETS_MAP[normalizeKey(name)];
+  ASSETS_MAP.get(normalizeKey(name));
 
 // Fallback images to cycle through for unknown categories
 const FALLBACK_IMAGES = [catNecklaces, catEarrings, catRings, catBracelets, catChokerSets, catMaangTikka, catHaldi, catMehndi, catCombos, catNath];

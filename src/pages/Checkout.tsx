@@ -20,6 +20,7 @@ interface Address {
   id: string;
   full_name: string;
   phone_number: string;
+  email?: string;
   street_address: string;
   city: string;
   state: string;
@@ -39,6 +40,7 @@ const Checkout = () => {
   const [newAddress, setNewAddress] = useState({
     full_name: "",
     phone_number: "",
+    email: "",
     street_address: "",
     city: "",
     state: "",
@@ -101,7 +103,20 @@ const Checkout = () => {
     if (loading) return;
 
     if (!user) {
-      navigate("/auth");
+      const guestAddressesStr = sessionStorage.getItem("guestAddresses");
+      if (guestAddressesStr) {
+        const guestAddresses = JSON.parse(guestAddressesStr) as Address[];
+        setAddresses(guestAddresses);
+        if (guestAddresses.length > 0) {
+          setSelectedAddressId(guestAddresses[0].id);
+          validatePincode(guestAddresses[0].pincode);
+        } else {
+          setShowAddForm(true);
+        }
+      } else {
+        setShowAddForm(true);
+      }
+      setIsLoadingAddresses(false);
       return;
     }
 
@@ -130,7 +145,7 @@ const Checkout = () => {
     };
 
     fetchAddresses();
-  }, [user, navigate]);
+  }, [user, loading]);
 
   // Handle Pincode Validation via Firestore
   const validatePincode = async (city: string) => {
@@ -162,9 +177,21 @@ const Checkout = () => {
     e.preventDefault();
 
     try {
+      if (!user) {
+        const added = { id: Date.now().toString(), ...newAddress };
+        const newAddresses = [...addresses, added];
+        sessionStorage.setItem("guestAddresses", JSON.stringify(newAddresses));
+        setAddresses(newAddresses);
+        setSelectedAddressId(added.id);
+        setShowAddForm(false);
+        setNewAddress({ full_name: "", phone_number: "", email: "", street_address: "", city: "", state: "", pincode: "", country: "India" });
+        toast.success("Guest address saved!");
+        return;
+      }
+
       const addressData = {
         ...newAddress,
-        userId: user!.uid,
+        userId: user.uid,
         createdAt: serverTimestamp()
       };
       const docRef = await addDoc(collection(db, "addresses"), addressData);
@@ -172,7 +199,7 @@ const Checkout = () => {
       setAddresses([...addresses, added]);
       setSelectedAddressId(added.id);
       setShowAddForm(false);
-      setNewAddress({ full_name: "", phone_number: "", street_address: "", city: "", state: "", pincode: "", country: "India" });
+      setNewAddress({ full_name: "", phone_number: "", email: "", street_address: "", city: "", state: "", pincode: "", country: "India" });
       toast.success("Address saved!");
     } catch (err) {
       console.error(err);
@@ -181,7 +208,6 @@ const Checkout = () => {
   };
 
   const handleCheckout = async () => {
-    if (!user) return;
 
     if (!selectedAddressId) {
       toast.error("Please select a delivery address.");
@@ -212,9 +238,9 @@ const Checkout = () => {
           try {
             // After successful payment, save order to Firestore
             const orderRef = await addDoc(collection(db, "orders"), {
-              userId: user.uid,
-              userEmail: user.email,
-              userName: selectedAddress?.full_name || user.displayName || user.email,
+              userId: user ? user.uid : "guest",
+              userEmail: user ? user.email : selectedAddress?.email || "",
+              userName: selectedAddress?.full_name || (user ? user.displayName || user.email : "Guest"),
               customerPhone: selectedAddress?.phone_number || "",
               fullAddress: `${selectedAddress?.street_address}, ${selectedAddress?.city}, ${selectedAddress?.state} - ${selectedAddress?.pincode}, ${selectedAddress?.country}`,
               city: selectedAddress?.city || "",
@@ -258,8 +284,8 @@ const Checkout = () => {
           }
         },
         prefill: {
-          name: selectedAddress?.full_name || user.displayName || "",
-          email: user.email || "",
+          name: selectedAddress?.full_name || (user ? user.displayName : ""),
+          email: user ? user.email : selectedAddress?.email || "",
           contact: selectedAddress?.phone_number || "",
         },
         theme: {
@@ -285,7 +311,7 @@ const Checkout = () => {
     : 0;
   const finalTotal = totalPrice + finalDeliveryCharge;
 
-  if (loading || (user && isLoadingAddresses)) {
+  if (loading || (user && isLoadingAddresses && addresses.length === 0 && !showAddForm)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-50">
         <Loader2 className="animate-spin text-gold" size={48} />
@@ -387,6 +413,17 @@ const Checkout = () => {
                                 type="tel" className="w-full p-2.5 border border-border rounded-md focus:border-gold outline-none text-sm" placeholder="10-digit mobile number" 
                               />
                             </div>
+                            {!user && (
+                              <div className="col-span-1 md:col-span-2 space-y-2">
+                                <label className="text-sm font-medium">Email Address</label>
+                                <input 
+                                  required
+                                  value={newAddress.email}
+                                  onChange={(e) => setNewAddress({...newAddress, email: e.target.value})}
+                                  type="email" className="w-full p-2.5 border border-border rounded-md focus:border-gold outline-none text-sm" placeholder="For order updates" 
+                                />
+                              </div>
+                            )}
                             <div className="col-span-1 md:col-span-2 space-y-2">
                               <label className="text-sm font-medium">Street Address</label>
                               <input 

@@ -22,21 +22,17 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const INACTIVITY_TIMEOUT = 2 * 60 * 60 * 1000; // 2 hours for customer site
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const cached = localStorage.getItem("auth_user");
-    return cached ? JSON.parse(cached) : null;
-  });
+  const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(() => {
     const cached = localStorage.getItem("user_profile");
     return cached ? JSON.parse(cached) : null;
   });
-  const [loading, setLoading] = useState(!user);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
-        localStorage.setItem("auth_user", JSON.stringify(firebaseUser));
         
         // Background check for profile
         try {
@@ -57,7 +53,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } else {
         setProfile(null);
-        localStorage.removeItem("auth_user");
         localStorage.removeItem("user_profile");
       }
       setLoading(false);
