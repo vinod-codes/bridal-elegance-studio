@@ -150,11 +150,11 @@ const Checkout = () => {
   // Handle Pincode Validation via Firestore
   const validatePincode = async (city: string) => {
     // Standardizing delivery charges for all locations
-    setShippingInfo(prev => ({ 
-      ...prev,
+    setShippingInfo({ 
       serviceable: true, 
+      delivery_charge: deliverySettings.default_delivery_charge,
       estimated_days: 5
-    }));
+    });
   };
 
   const [orderFor, setOrderFor] = useState<'self' | 'gift'>('self');
@@ -216,8 +216,8 @@ const Checkout = () => {
 
     setIsPlacingOrder(true);
     try {
-      // Calculate final amount - smart shipping
-      const shippingCharge = (deliverySettings.force_free_delivery || totalPrice >= deliverySettings.free_delivery_threshold) ? 0 : (shippingInfo.delivery_charge || 0);
+      // 1. Calculate final amount
+      const shippingCharge = (deliverySettings.force_free_delivery || totalPrice >= deliverySettings.free_delivery_threshold) ? 0 : (shippingInfo?.delivery_charge ?? deliverySettings.default_delivery_charge);
       const finalAmount = totalPrice + shippingCharge;
 
       const selectedAddress = addresses.find(a => a.id === selectedAddressId);
@@ -227,16 +227,36 @@ const Checkout = () => {
         throw new Error("Razorpay Key ID is not configured.");
       }
 
+      // 2. Create Razorpay order on backend (HMAC-signed, tamper-proof)
+      const { data: razorpayOrder } = await axios.post("/api/create-order", {
+        amount: finalAmount,
+        currency: "INR",
+        receipt: `checkout_${Date.now()}`,
+      });
+
       const options = {
         key: RAZORPAY_KEY,
-        amount: Math.round(finalAmount * 100),
-        currency: "INR",
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        order_id: razorpayOrder.id,
         name: "Unique Jewelry Studio",
         description: "Handcrafted Bridal Jewelry Purchase",
         image: "/favicon.png",
         handler: async function (response: any) {
           try {
-            // After successful payment, save order to Firestore
+            // 3. Verify signature backend-side before writing order
+            const { data: verifyResult } = await axios.post("/api/verify-payment", {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            if (!verifyResult.verified) {
+              toast.error("Payment verification failed. Please contact support.");
+              return;
+            }
+
+            // 4. Save verified order to Firestore
             const orderRef = await addDoc(collection(db, "orders"), {
               userId: user ? user.uid : "guest",
               userEmail: user ? user.email : selectedAddress?.email || "",
@@ -249,29 +269,44 @@ const Checkout = () => {
               orderFor: orderFor,
               recipientName: orderFor === 'gift' ? giftDetails.recipient_name : "",
               giftMessage: orderFor === 'gift' ? giftDetails.message : "",
-              items: items.map(({ product, quantity }) => ({
-                productId: product.id,
-                name: product.name,
-                price: product.discountPrice ?? product.price,
-                originalPrice: product.price,
-                image: product.images?.[0] || product.image,
-                quantity,
-              })),
+              items: items.map(({ product, quantity, variantId, variantName }) => {
+                const variant = variantId && product.variants ? product.variants.find(v => v.id === variantId) : null;
+                return {
+                  productId: product.id,
+                  variantId: variantId || null,
+                  variantName: variantName || null,
+                  name: product.name,
+                  price: variant?.price ?? product.discountPrice ?? product.price,
+                  originalPrice: product.price,
+                  image: variant?.images?.[0] || product.images?.[0] || product.image,
+                  quantity,
+                };
+              }),
               totalAmount: finalAmount,
               shippingCharge,
-              status: "pending", // Start with pending, updated by admin
+              status: "paid",
               paymentId: response.razorpay_payment_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpayOrderId: response.razorpay_order_id,
               paymentMethod: "Razorpay",
               createdAt: serverTimestamp(),
             });
 
-            // Stock update logic
+            // 5. Decrement stock
             const batch = writeBatch(db);
             items.forEach((item) => {
               const productRef = doc(db, "products", item.product.id);
-              batch.update(productRef, {
-                stock: increment(-item.quantity),
-              });
+              if (item.variantId && item.product.variants) {
+                const updatedVariants = item.product.variants.map(v => {
+                  if (v.id === item.variantId && v.stock !== undefined) {
+                    return { ...v, stock: Math.max(0, v.stock - item.quantity) };
+                  }
+                  return v;
+                });
+                batch.update(productRef, { variants: updatedVariants });
+              } else {
+                batch.update(productRef, { stock: increment(-item.quantity) });
+              }
             });
             await batch.commit();
 
@@ -291,6 +326,11 @@ const Checkout = () => {
         theme: {
           color: "#D4AF37",
         },
+        modal: {
+          ondismiss: function() {
+            setIsPlacingOrder(false);
+          }
+        }
       };
 
       const rzp = new (window as any).Razorpay(options);
@@ -300,7 +340,7 @@ const Checkout = () => {
       rzp.open();
     } catch (error: any) {
       console.error("Razorpay initiation failed:", error);
-      toast.error("Failed to initiate payment: " + error.message);
+      toast.error("Failed to initiate payment: " + (error.response?.data?.error || error.message));
     } finally {
       setIsPlacingOrder(false);
     }
@@ -383,7 +423,7 @@ const Checkout = () => {
                             </div>
                           ))}
                           <button 
-                            onClick={() => { setShowAddForm(true); setShippingInfo(null); }}
+                            onClick={() => { setShowAddForm(true); setShippingInfo({ serviceable: true, delivery_charge: deliverySettings.default_delivery_charge, estimated_days: 5 }); }}
                             className="text-gold font-medium text-sm hover:underline mt-2 inline-block"
                           >
                             + Add New Address
@@ -586,7 +626,7 @@ const Checkout = () => {
                         {!selectedAddressId ? (
                           "—"
                         ) : (
-                          (deliverySettings.force_free_delivery || totalPrice >= deliverySettings.free_delivery_threshold) ? <span className="text-green-600 font-semibold text-xs tracking-wider uppercase">Complimentary</span> : `₹${shippingInfo.delivery_charge}`
+                          (deliverySettings.force_free_delivery || totalPrice >= deliverySettings.free_delivery_threshold) ? <span className="text-green-600 font-semibold text-xs tracking-wider uppercase">Complimentary</span> : `₹${shippingInfo?.delivery_charge ?? deliverySettings.default_delivery_charge}`
                         )}
                       </span>
                     </div>

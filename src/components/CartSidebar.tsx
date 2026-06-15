@@ -62,7 +62,20 @@ const CartSidebar = () => {
         order_id: order.id,
         handler: async function (response: any) {
           try {
-            // 3. Save order to Firestore FIRST (critical — user has create permission)
+            // 3. Verify payment signature backend-side before writing order
+            const { data: verifyResult } = await axios.post("/api/verify-payment", {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            if (!verifyResult.verified) {
+              toast.error("Payment verification failed. Please contact support with Payment ID: " + response.razorpay_payment_id);
+              setPlacing(false);
+              return;
+            }
+
+            // 4. Save verified order to Firestore
             await addDoc(collection(db, "orders"), {
               userId: user.uid,
               userEmail: user.email,
@@ -83,6 +96,7 @@ const CartSidebar = () => {
               totalAmount: totalPrice,
               razorpayOrderId: response.razorpay_order_id,
               razorpayPaymentId: response.razorpay_payment_id,
+              paymentId: response.razorpay_payment_id,
               status: "paid",
               createdAt: serverTimestamp(),
             });

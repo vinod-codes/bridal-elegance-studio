@@ -109,9 +109,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const clearCart = useCallback(() => setItems([]), []);
 
   const totalItems = items.reduce((s, i) => s + i.quantity, 0);
-  // Use discountPrice (sale price) if set, otherwise use original price
+  // Use variant price if present, else discountPrice (sale price), else original price
   const totalPrice = items.reduce((s, i) => {
-    const unitPrice = i.product.discountPrice ?? i.product.price;
+    let unitPrice = i.product.discountPrice ?? i.product.price;
+    if (i.variantId && i.product.variants) {
+      const variant = i.product.variants.find(v => v.id === i.variantId);
+      if (variant?.price !== undefined) unitPrice = variant.price;
+    }
     return s + unitPrice * i.quantity;
   }, 0);
 
