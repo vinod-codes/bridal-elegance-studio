@@ -57,8 +57,8 @@ const CartSidebar = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_Sb16AhWMZG3LSJ",
         amount: order.amount,
         currency: order.currency,
-        name: "Unique Jewelry Studio",
-        description: "Studio Order Payment",
+        name: "Unique Jewellery Studio",
+        description: "Premium Handcrafted Jewellery",
         order_id: order.id,
         handler: async function (response: any) {
           try {

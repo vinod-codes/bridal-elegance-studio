@@ -15,7 +15,7 @@ const ProductCard = ({ product }: Props) => {
     ? Math.round(((originalPrice - product.discountPrice) / originalPrice) * 100)
     : 0;
 
-  const displayImage = product.images?.[0] || product.image || "/placeholder.jpg";
+  const displayImage = product.media?.[0]?.medium || product.images?.[0] || product.image || "/placeholder.jpg";
 
   return (
     <div className="group hover-lift rounded-lg overflow-hidden bg-card">

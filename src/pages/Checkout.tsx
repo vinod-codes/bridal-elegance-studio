@@ -216,8 +216,38 @@ const Checkout = () => {
 
     setIsPlacingOrder(true);
     try {
+      let globalItemsSubtotal = 0;
+      let maxCustomDeliveryCharge = 0;
+
+      items.forEach(i => {
+        const product = i.product;
+        let unitPrice = product.discountPrice ?? product.price;
+        if (i.variantId && product.variants) {
+          const variant = product.variants.find(v => v.id === i.variantId);
+          if (variant?.price !== undefined) unitPrice = variant.price;
+        }
+        const itemTotal = unitPrice * i.quantity;
+
+        const deliveryConfig = product.deliveryConfig || { useGlobalDelivery: true, customDeliveryCharge: 0, freeDelivery: false };
+        if (deliveryConfig.freeDelivery) {
+          // no charge
+        } else if (!deliveryConfig.useGlobalDelivery) {
+          const customCharge = Number(deliveryConfig.customDeliveryCharge || 0);
+          if (customCharge > maxCustomDeliveryCharge) maxCustomDeliveryCharge = customCharge;
+        } else {
+          globalItemsSubtotal += itemTotal;
+        }
+      });
+
       // 1. Calculate final amount
-      const shippingCharge = (deliverySettings.force_free_delivery || totalPrice >= deliverySettings.free_delivery_threshold) ? 0 : (shippingInfo?.delivery_charge ?? deliverySettings.default_delivery_charge);
+      let globalDeliveryContribution = 0;
+      if (!deliverySettings.force_free_delivery && globalItemsSubtotal > 0 && globalItemsSubtotal < deliverySettings.free_delivery_threshold) {
+         globalDeliveryContribution = shippingInfo?.delivery_charge ?? deliverySettings.default_delivery_charge;
+      }
+      
+      let shippingCharge = Math.max(globalDeliveryContribution, maxCustomDeliveryCharge);
+      if (deliverySettings.force_free_delivery) shippingCharge = 0;
+      
       const finalAmount = totalPrice + shippingCharge;
 
       const selectedAddress = addresses.find(a => a.id === selectedAddressId);
@@ -227,28 +257,67 @@ const Checkout = () => {
         throw new Error("Razorpay Key ID is not configured.");
       }
 
+      // Prepare order data for Pending Order creation
+      const orderData = {
+        userId: user ? user.uid : "guest",
+        userEmail: user ? user.email : selectedAddress?.email || "",
+        userName: selectedAddress?.full_name || (user ? user.displayName || user.email : "Guest"),
+        customerPhone: selectedAddress?.phone_number || "",
+        fullAddress: `${selectedAddress?.street_address}, ${selectedAddress?.city}, ${selectedAddress?.state} - ${selectedAddress?.pincode}, ${selectedAddress?.country}`,
+        city: selectedAddress?.city || "",
+        pincode: selectedAddress?.pincode || "",
+        country: selectedAddress?.country || "India",
+        orderFor: orderFor,
+        recipientName: orderFor === 'gift' ? giftDetails.recipient_name : "",
+        giftMessage: orderFor === 'gift' ? giftDetails.message : "",
+        totalAmount: finalAmount,
+        shippingCharge,
+        paymentMethod: "Razorpay"
+      };
+
+      const orderItems = items.map(({ product, quantity, variantId, variantName }) => {
+        const variant = variantId && product.variants ? product.variants.find(v => v.id === variantId) : null;
+        return {
+          productId: product.id,
+          variantId: variantId || null,
+          variantName: variantName || null,
+          name: product.name,
+          price: variant?.price ?? product.discountPrice ?? product.price,
+          originalPrice: product.price,
+          image: variant?.images?.[0] || product.images?.[0] || product.image,
+          quantity,
+        };
+      });
+
       // 2. Create Razorpay order on backend (HMAC-signed, tamper-proof)
-      const { data: razorpayOrder } = await axios.post("/api/create-order", {
+      const API_URL = import.meta.env.VITE_API_URL || "";
+      const { data: razorpayOrder } = await axios.post(`${API_URL}/api/create-order`, {
         amount: finalAmount,
         currency: "INR",
         receipt: `checkout_${Date.now()}`,
+        orderData: orderData,
+        items: orderItems
       });
+
+      const pendingOrderId = razorpayOrder.pendingOrderId;
 
       const options = {
         key: RAZORPAY_KEY,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
         order_id: razorpayOrder.id,
-        name: "Unique Jewelry Studio",
-        description: "Handcrafted Bridal Jewelry Purchase",
+        name: "Unique Jewellery Studio",
+        description: "Premium Handcrafted Jewellery",
         image: "/favicon.png",
         handler: async function (response: any) {
           try {
-            // 3. Verify signature backend-side before writing order
-            const { data: verifyResult } = await axios.post("/api/verify-payment", {
+            // 3. Verify signature and create order backend-side
+            const API_URL = import.meta.env.VITE_API_URL || "";
+            const { data: verifyResult } = await axios.post(`${API_URL}/api/verify-payment`, {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
+              pendingOrderId: pendingOrderId
             });
 
             if (!verifyResult.verified) {
@@ -256,63 +325,9 @@ const Checkout = () => {
               return;
             }
 
-            // 4. Save verified order to Firestore
-            const orderRef = await addDoc(collection(db, "orders"), {
-              userId: user ? user.uid : "guest",
-              userEmail: user ? user.email : selectedAddress?.email || "",
-              userName: selectedAddress?.full_name || (user ? user.displayName || user.email : "Guest"),
-              customerPhone: selectedAddress?.phone_number || "",
-              fullAddress: `${selectedAddress?.street_address}, ${selectedAddress?.city}, ${selectedAddress?.state} - ${selectedAddress?.pincode}, ${selectedAddress?.country}`,
-              city: selectedAddress?.city || "",
-              pincode: selectedAddress?.pincode || "",
-              country: selectedAddress?.country || "India",
-              orderFor: orderFor,
-              recipientName: orderFor === 'gift' ? giftDetails.recipient_name : "",
-              giftMessage: orderFor === 'gift' ? giftDetails.message : "",
-              items: items.map(({ product, quantity, variantId, variantName }) => {
-                const variant = variantId && product.variants ? product.variants.find(v => v.id === variantId) : null;
-                return {
-                  productId: product.id,
-                  variantId: variantId || null,
-                  variantName: variantName || null,
-                  name: product.name,
-                  price: variant?.price ?? product.discountPrice ?? product.price,
-                  originalPrice: product.price,
-                  image: variant?.images?.[0] || product.images?.[0] || product.image,
-                  quantity,
-                };
-              }),
-              totalAmount: finalAmount,
-              shippingCharge,
-              status: "paid",
-              paymentId: response.razorpay_payment_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpayOrderId: response.razorpay_order_id,
-              paymentMethod: "Razorpay",
-              createdAt: serverTimestamp(),
-            });
-
-            // 5. Decrement stock
-            const batch = writeBatch(db);
-            items.forEach((item) => {
-              const productRef = doc(db, "products", item.product.id);
-              if (item.variantId && item.product.variants) {
-                const updatedVariants = item.product.variants.map(v => {
-                  if (v.id === item.variantId && v.stock !== undefined) {
-                    return { ...v, stock: Math.max(0, v.stock - item.quantity) };
-                  }
-                  return v;
-                });
-                batch.update(productRef, { variants: updatedVariants });
-              } else {
-                batch.update(productRef, { stock: increment(-item.quantity) });
-              }
-            });
-            await batch.commit();
-
             clearCart();
             toast.success("✨ Payment successful!");
-            navigate(`/order-success/${orderRef.id}`);
+            navigate(`/order-success/${verifyResult.orderId}`);
           } catch (err) {
             console.error("Firestore post-payment error:", err);
             toast.error("Payment successful but failed to save order. Please contact support.");
@@ -346,9 +361,38 @@ const Checkout = () => {
     }
   };
    
-  const finalDeliveryCharge = shippingInfo?.serviceable 
-    ? (deliverySettings.force_free_delivery || totalPrice >= deliverySettings.free_delivery_threshold ? 0 : shippingInfo.delivery_charge || 0) 
-    : 0;
+  let globalItemsSubtotal = 0;
+  let maxCustomDeliveryCharge = 0;
+
+  items.forEach(i => {
+    const product = i.product;
+    let unitPrice = product.discountPrice ?? product.price;
+    if (i.variantId && product.variants) {
+      const variant = product.variants.find(v => v.id === i.variantId);
+      if (variant?.price !== undefined) unitPrice = variant.price;
+    }
+    const itemTotal = unitPrice * i.quantity;
+
+    const deliveryConfig = product.deliveryConfig || { useGlobalDelivery: true, customDeliveryCharge: 0, freeDelivery: false };
+    if (deliveryConfig.freeDelivery) {
+      // no charge
+    } else if (!deliveryConfig.useGlobalDelivery) {
+      const customCharge = Number(deliveryConfig.customDeliveryCharge || 0);
+      if (customCharge > maxCustomDeliveryCharge) maxCustomDeliveryCharge = customCharge;
+    } else {
+      globalItemsSubtotal += itemTotal;
+    }
+  });
+
+  let globalDeliveryContribution = 0;
+  if (!deliverySettings.force_free_delivery && globalItemsSubtotal > 0 && globalItemsSubtotal < deliverySettings.free_delivery_threshold) {
+      globalDeliveryContribution = shippingInfo?.delivery_charge || deliverySettings.default_delivery_charge;
+  }
+  
+  let finalDeliveryCharge = Math.max(globalDeliveryContribution, maxCustomDeliveryCharge);
+  if (!shippingInfo?.serviceable) finalDeliveryCharge = 0;
+  if (deliverySettings.force_free_delivery) finalDeliveryCharge = 0;
+
   const finalTotal = totalPrice + finalDeliveryCharge;
 
   if (loading || (user && isLoadingAddresses && addresses.length === 0 && !showAddForm)) {
@@ -623,11 +667,13 @@ const Checkout = () => {
                     <div className="flex justify-between text-muted-foreground">
                       <span>Delivery Charge</span>
                       <span className="font-medium text-foreground">
-                        {!selectedAddressId ? (
-                          "—"
-                        ) : (
-                          (deliverySettings.force_free_delivery || totalPrice >= deliverySettings.free_delivery_threshold) ? <span className="text-green-600 font-semibold text-xs tracking-wider uppercase">Complimentary</span> : `₹${shippingInfo?.delivery_charge ?? deliverySettings.default_delivery_charge}`
-                        )}
+                          {!selectedAddressId ? (
+                            "—"
+                          ) : (
+                            (deliverySettings.force_free_delivery || (globalItemsSubtotal > 0 && globalItemsSubtotal >= deliverySettings.free_delivery_threshold && maxCustomDeliveryCharge === 0)) 
+                              ? <span className="text-green-600 font-semibold text-xs tracking-wider uppercase">Complimentary</span> 
+                              : `₹${finalDeliveryCharge}`
+                          )}
                       </span>
                     </div>
 

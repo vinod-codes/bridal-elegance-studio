@@ -212,7 +212,9 @@ const ProductDetail = () => {
 
   const currentImages = variantImages.length > 0 
     ? variantImages 
-    : (product?.images?.length ? product.images : [product?.image || "/placeholder.jpg"]);
+    : (product?.media?.length 
+        ? product.media.map((m: any) => m.large || m.original)
+        : (product?.images?.length ? product.images : [product?.image || "/placeholder.jpg"]));
 
   useEffect(() => {
     window.scrollTo(0, 0);
