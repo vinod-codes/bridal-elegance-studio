@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 import type { FirestoreProduct } from "@/hooks/useProducts";
+import { trackAddToCart } from "@/lib/analytics";
 
 // Re-export for convenience so existing imports still work
 export type Product = FirestoreProduct;
@@ -74,6 +75,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const finalQty = Math.min(quantity, availableStock);
       return [...prev, { product, quantity: finalQty, variantId, variantName }];
     });
+    try { trackAddToCart(product as any, quantity, variantName); } catch {}
     setIsOpen(true);
   }, []);
 

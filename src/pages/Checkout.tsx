@@ -9,6 +9,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
 
 declare global {
   interface Window {
@@ -214,6 +215,7 @@ const Checkout = () => {
       return;
     }
 
+    try { trackBeginCheckout(items as any, totalPrice); } catch {}
     setIsPlacingOrder(true);
     try {
       let globalItemsSubtotal = 0;
@@ -326,11 +328,18 @@ const Checkout = () => {
             }
 
             clearCart();
+            try {
+              trackPurchase(verifyResult.orderId, finalAmount, orderItems, shippingCharge);
+              sessionStorage.setItem(
+                `purchase_${verifyResult.orderId}`,
+                JSON.stringify({ value: finalAmount, shipping: shippingCharge })
+              );
+            } catch {}
             toast.success("✨ Payment successful!");
-            navigate(`/order-success/${verifyResult.orderId}`);
+            navigate(`/order-success/${verifyResult.orderId}`, { replace: true });
           } catch (err) {
             console.error("Firestore post-payment error:", err);
-            toast.error("Payment successful but failed to save order. Please contact support.");
+            toast.error("Payment successful but failed to save order. Please contact support at uniquejewelrystudio@gmail.com with payment ID: " + response.razorpay_payment_id);
           }
         },
         prefill: {

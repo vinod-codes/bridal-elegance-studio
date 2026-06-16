@@ -221,6 +221,15 @@ const ProductDetail = () => {
   }, [id]);
 
   useEffect(() => {
+    if (product?.id) {
+      import("@/lib/analytics").then(({ trackViewItem }) =>
+        trackViewItem(product as any, currentVariant?.colorName)
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?.id]);
+
+  useEffect(() => {
     if (!product?.variants?.length) return;
     if (!selectedColor) {
       setSelectedColor(product.variants[0].colorName);
