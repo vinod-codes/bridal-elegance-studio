@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { trackPageView } from "@/lib/analytics";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -25,7 +25,13 @@ const queryClient = new QueryClient();
 
 const RouteTracker = () => {
   const location = useLocation();
+  const isFirst = useRef(true);
   useEffect(() => {
+    // Skip the first call — gtag('config') already fires the initial page_view.
+    if (isFirst.current) {
+      isFirst.current = false;
+      return;
+    }
     trackPageView(location.pathname + location.search);
   }, [location.pathname, location.search]);
   return null;
