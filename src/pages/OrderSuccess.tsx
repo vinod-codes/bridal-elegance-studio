@@ -35,9 +35,19 @@ const OrderSuccess = () => {
 
     const unsubscribe = onSnapshot(doc(db, "orders", orderId), (docSnap) => {
       if (docSnap.exists()) {
-        setOrder({ id: docSnap.id, ...docSnap.data() } as Order);
+        const data = { id: docSnap.id, ...docSnap.data() } as Order;
+        setOrder(data);
+        // Fire GA4 purchase once per order (guard against StrictMode dup)
+        const key = `ga_purchase_${orderId}`;
+        if (!sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, "1");
+          import("@/lib/analytics").then(({ trackPurchase }) =>
+            trackPurchase(orderId, data.totalAmount, data.items || [])
+          );
+        }
       } else {
-        navigate("/");
+        // Don't redirect home — show not-found state instead
+        setOrder(null);
       }
       setLoading(false);
     }, (error) => {
@@ -64,7 +74,24 @@ const OrderSuccess = () => {
     );
   }
 
-  if (!order) return null;
+  if (!order) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex flex-col">
+        <Header />
+        <main className="flex-grow pt-32 pb-20 px-4 flex items-center justify-center">
+          <div className="max-w-md text-center">
+            <h1 className="font-heading text-3xl text-stone-900 mb-3">Order not found</h1>
+            <p className="text-stone-500 mb-6">We couldn't locate this order. If you just paid, please check "My Orders" or contact support with your payment reference.</p>
+            <div className="flex gap-3 justify-center">
+              <Link to="/my-orders" className="px-5 py-3 bg-gold text-white rounded-sm uppercase tracking-wider text-xs font-bold">My Orders</Link>
+              <Link to="/shop" className="px-5 py-3 border border-stone-300 rounded-sm uppercase tracking-wider text-xs font-bold">Continue Shopping</Link>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">
