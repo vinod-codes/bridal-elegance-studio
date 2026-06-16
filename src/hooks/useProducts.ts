@@ -52,6 +52,12 @@ export interface FirestoreProduct {
   isVisible?: boolean;
   approvalStatus?: "Pending" | "Approved" | "Rejected";
   variants?: ProductVariant[];
+  media?: Array<{ small?: string; medium?: string; large?: string; original?: string }>;
+  deliveryConfig?: {
+    useGlobalDelivery?: boolean;
+    customDeliveryCharge?: number;
+    freeDelivery?: boolean;
+  };
   createdAt?: Timestamp | null;
   updatedAt?: Timestamp | null;
 }
