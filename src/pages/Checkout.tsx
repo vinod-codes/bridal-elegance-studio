@@ -426,6 +426,15 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-stone-50">
+      {isPlacingOrder && (
+        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white rounded-2xl px-8 py-10 max-w-sm mx-4 text-center shadow-2xl">
+            <Loader2 className="animate-spin text-gold mx-auto mb-4" size={40} />
+            <h3 className="font-heading text-xl text-stone-900 mb-2">Processing Payment</h3>
+            <p className="text-sm text-stone-500">Please don't close or refresh this window. Your order is being secured.</p>
+          </div>
+        </div>
+      )}
       <Header />
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4 max-w-5xl">
