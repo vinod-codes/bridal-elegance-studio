@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
+import SEO from "@/components/SEO";
 import catNecklaces from "@/assets/cat-necklaces.jpg";
 import catEarrings from "@/assets/cat-earrings-green.png";
 import catRings from "@/assets/cat-rings.jpg";
@@ -163,6 +164,11 @@ const Categories = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Bridal Jewellery Categories | Necklaces, Earrings, Haldi & Mehndi Sets"
+        description="Browse all bridal jewellery categories — Necklaces, Earrings, Maang Tikka, Chokers, Haldi & Mehndi sets. Handmade in India by Unique Jewelry Studio."
+        path="/categories"
+      />
       <AnnouncementBar />
       <Header />
 

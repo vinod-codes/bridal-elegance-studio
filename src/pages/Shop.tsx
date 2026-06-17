@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
+import SEO from "@/components/SEO";
 
 type SortOption = "default" | "price-asc" | "price-desc" | "newest";
 
@@ -57,8 +58,14 @@ const Shop = () => {
     return list;
   }, [products, activeCategory, sort]);
 
+  const catLabel = activeCategory === "all" ? "All Bridal Jewellery" : activeCategory;
   return (
     <div className="min-h-screen">
+      <SEO
+        title={`${catLabel} | Shop Bridal Jewellery Online — Unique Jewelry Studio`}
+        description={`Shop ${catLabel.toLowerCase()} online at Unique Jewelry Studio. Handmade gold-plated bridal jewellery for Haldi, Mehndi & Weddings. Free shipping above ₹999.`}
+        path={activeCategory === "all" ? "/shop" : `/shop?category=${encodeURIComponent(activeCategory)}`}
+      />
       <AnnouncementBar />
       <Header />
       <main className="container py-10">

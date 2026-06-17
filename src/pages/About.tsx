@@ -1,10 +1,16 @@
 import AnnouncementBar from "@/components/AnnouncementBar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 import heroBridal from "@/assets/hero-bridal.jpg";
 const About = () => {
   return (
     <div className="min-h-screen">
+      <SEO
+        title="About Unique Jewelry Studio | Handmade Bridal Jewellery Brand India"
+        description="Meet Unique Jewelry Studio — handcrafted bridal jewellery for Haldi, Mehndi & Weddings. Customisable designs, premium gold-plated craftsmanship made in India."
+        path="/about"
+      />
       <AnnouncementBar />
       <Header />
       <main>
