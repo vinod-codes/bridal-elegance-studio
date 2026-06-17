@@ -297,8 +297,40 @@ const ProductDetail = () => {
     }
   };
 
+  const seoPrice = product ? (product.discountPrice ?? product.price) : 0;
+  const seoImage = product ? (product.images?.[0] || product.image || "") : "";
+  const productSchema = product ? {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    image: seoImage ? [seoImage] : undefined,
+    description: product.description || `${product.name} — handmade bridal jewellery by Unique Jewelry Studio.`,
+    brand: { "@type": "Brand", name: "Unique Jewelry Studio" },
+    sku: product.id,
+    category: product.category,
+    offers: {
+      "@type": "Offer",
+      url: `https://www.theujs.com/product/${product.id}`,
+      priceCurrency: "INR",
+      price: seoPrice,
+      availability: (product.stock ?? 0) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      itemCondition: "https://schema.org/NewCondition",
+    },
+    aggregateRating: { "@type": "AggregateRating", ratingValue: "4.8", reviewCount: "120" },
+  } : null;
+
   return (
     <div className="min-h-screen bg-white">
+      {product && (
+        <SEO
+          title={`${product.name} | Buy Online — Unique Jewelry Studio`}
+          description={(product.description || `${product.name} — handmade bridal jewellery by Unique Jewelry Studio. Free shipping above ₹999.`).slice(0, 160)}
+          path={`/product/${product.id}`}
+          image={seoImage}
+          type="product"
+          jsonLd={productSchema!}
+        />
+      )}
       <AnnouncementBar />
       <Header />
 

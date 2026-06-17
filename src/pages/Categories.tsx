@@ -164,6 +164,11 @@ const Categories = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Bridal Jewellery Categories | Necklaces, Earrings, Haldi & Mehndi Sets"
+        description="Browse all bridal jewellery categories — Necklaces, Earrings, Maang Tikka, Chokers, Haldi & Mehndi sets. Handmade in India by Unique Jewelry Studio."
+        path="/categories"
+      />
       <AnnouncementBar />
       <Header />
 
