@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
+import SEO from "@/components/SEO";
 
 type SortOption = "default" | "price-asc" | "price-desc" | "newest";
 

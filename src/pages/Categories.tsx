@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
+import SEO from "@/components/SEO";
 import catNecklaces from "@/assets/cat-necklaces.jpg";
 import catEarrings from "@/assets/cat-earrings-green.png";
 import catRings from "@/assets/cat-rings.jpg";
