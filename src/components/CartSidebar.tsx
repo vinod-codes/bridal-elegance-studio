@@ -132,7 +132,7 @@ const CartSidebar = () => {
             clearCart();
             closeCart();
             toast.success("✨ Payment successful! Order placed.", {
-              action: { label: "My Orders", onClick: () => navigate("/orders") },
+              action: { label: "My Orders", onClick: () => navigate("/my-orders") },
             });
           } catch (err) {
             console.error("Failed to save order after payment:", err);

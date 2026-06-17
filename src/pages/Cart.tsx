@@ -137,16 +137,115 @@ const Cart = () => {
                       <span>Subtotal</span>
                       <span className="font-medium text-foreground">₹{totalPrice}</span>
                     </div>
-                    {!deliverySettings.force_free_delivery && totalPrice < deliverySettings.free_delivery_threshold && (
-                      <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded text-center">
-                        Add ₹{deliverySettings.free_delivery_threshold - totalPrice} more for complimentary shipping!
-                      </p>
-                    )}
+                    
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Estimated Delivery</span>
+                      <span className="font-medium text-foreground">
+                        {(() => {
+                          if (deliverySettings.force_free_delivery) return <span className="text-green-600 font-semibold text-xs tracking-wider uppercase">Complimentary</span>;
+                          
+                          let globalItemsSubtotal = 0;
+                          let maxCustomDeliveryCharge = 0;
+
+                          items.forEach(i => {
+                            const product = i.product;
+                            let unitPrice = product.discountPrice ?? product.price;
+                            if (i.variantId && product.variants) {
+                              const variant = product.variants.find(v => v.id === i.variantId);
+                              if (variant?.price !== undefined) unitPrice = variant.price;
+                            }
+                            const itemTotal = unitPrice * i.quantity;
+
+                            const deliveryConfig = product.deliveryConfig || { useGlobalDelivery: true, customDeliveryCharge: 0, freeDelivery: false };
+                            if (deliveryConfig.freeDelivery) {
+                              // no charge
+                            } else if (!deliveryConfig.useGlobalDelivery) {
+                              const customCharge = Number(deliveryConfig.customDeliveryCharge || 0);
+                              if (customCharge > maxCustomDeliveryCharge) maxCustomDeliveryCharge = customCharge;
+                            } else {
+                              globalItemsSubtotal += itemTotal;
+                            }
+                          });
+
+                          let globalDeliveryContribution = 0;
+                          if (globalItemsSubtotal > 0 && globalItemsSubtotal < deliverySettings.free_delivery_threshold) {
+                              globalDeliveryContribution = 50; // Default estimate
+                          }
+                          
+                          let finalDeliveryCharge = Math.max(globalDeliveryContribution, maxCustomDeliveryCharge);
+                          
+                          if (finalDeliveryCharge === 0) {
+                            return <span className="text-green-600 font-semibold text-xs tracking-wider uppercase">Complimentary</span>;
+                          }
+                          return `₹${finalDeliveryCharge}`;
+                        })()}
+                      </span>
+                    </div>
+
+                    {(() => {
+                        let globalItemsSubtotal = 0;
+                        items.forEach(i => {
+                          const product = i.product;
+                          let unitPrice = product.discountPrice ?? product.price;
+                          if (i.variantId && product.variants) {
+                            const variant = product.variants.find(v => v.id === i.variantId);
+                            if (variant?.price !== undefined) unitPrice = variant.price;
+                          }
+                          const deliveryConfig = product.deliveryConfig || { useGlobalDelivery: true, customDeliveryCharge: 0, freeDelivery: false };
+                          if (!deliveryConfig.freeDelivery && deliveryConfig.useGlobalDelivery) {
+                            globalItemsSubtotal += (unitPrice * i.quantity);
+                          }
+                        });
+
+                        if (!deliverySettings.force_free_delivery && globalItemsSubtotal > 0 && globalItemsSubtotal < deliverySettings.free_delivery_threshold) {
+                          return (
+                            <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded text-center">
+                              Add ₹{deliverySettings.free_delivery_threshold - globalItemsSubtotal} more in eligible items for complimentary shipping!
+                            </p>
+                          );
+                        }
+                        return null;
+                    })()}
                   </div>
                   <div className="border-t border-border/50 pt-4 mb-6">
                     <div className="flex justify-between font-heading text-lg font-semibold">
-                      <span>Total</span>
-                      <span className="text-gold">₹{totalPrice}</span>
+                      <span>Estimated Total</span>
+                      <span className="text-gold">
+                        {(() => {
+                           let globalItemsSubtotal = 0;
+                           let maxCustomDeliveryCharge = 0;
+ 
+                           items.forEach(i => {
+                             const product = i.product;
+                             let unitPrice = product.discountPrice ?? product.price;
+                             if (i.variantId && product.variants) {
+                               const variant = product.variants.find(v => v.id === i.variantId);
+                               if (variant?.price !== undefined) unitPrice = variant.price;
+                             }
+                             const itemTotal = unitPrice * i.quantity;
+ 
+                             const deliveryConfig = product.deliveryConfig || { useGlobalDelivery: true, customDeliveryCharge: 0, freeDelivery: false };
+                             if (deliveryConfig.freeDelivery) {
+                               // no charge
+                             } else if (!deliveryConfig.useGlobalDelivery) {
+                               const customCharge = Number(deliveryConfig.customDeliveryCharge || 0);
+                               if (customCharge > maxCustomDeliveryCharge) maxCustomDeliveryCharge = customCharge;
+                             } else {
+                               globalItemsSubtotal += itemTotal;
+                             }
+                           });
+ 
+                           let globalDeliveryContribution = 0;
+                           if (!deliverySettings.force_free_delivery && globalItemsSubtotal > 0 && globalItemsSubtotal < deliverySettings.free_delivery_threshold) {
+                               globalDeliveryContribution = 50; // Default estimate
+                           }
+                           
+                           let finalDeliveryCharge = Math.max(globalDeliveryContribution, maxCustomDeliveryCharge);
+                           if (deliverySettings.force_free_delivery) finalDeliveryCharge = 0;
+
+                           return `₹${totalPrice + finalDeliveryCharge}`;
+                        })()}
+                      </span>
                     </div>
                   </div>
                   <button

@@ -253,7 +253,7 @@ const Checkout = () => {
       const finalAmount = totalPrice + shippingCharge;
 
       const selectedAddress = addresses.find(a => a.id === selectedAddressId);
-      const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID;
+      const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_Sb16AhWMZG3LSJ";
 
       if (!RAZORPAY_KEY) {
         throw new Error("Razorpay Key ID is not configured.");
@@ -286,7 +286,13 @@ const Checkout = () => {
           name: product.name,
           price: variant?.price ?? product.discountPrice ?? product.price,
           originalPrice: product.price,
-          image: variant?.images?.[0] || product.images?.[0] || product.image,
+          image: (() => {
+            const img = variant?.images?.[0] || product.images?.[0] || product.image;
+            if (typeof img === 'string' && img.startsWith('data:image')) {
+              return ''; // Strip base64 image strings from payload to avoid 413 errors
+            }
+            return img || '';
+          })(),
           quantity,
         };
       });
@@ -319,11 +325,17 @@ const Checkout = () => {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              pendingOrderId: pendingOrderId
+              orderData: orderData,
+              items: orderItems
             });
 
             if (!verifyResult.verified) {
               toast.error("Payment verification failed. Please contact support.");
+              return;
+            }
+
+            if (!verifyResult.orderId) {
+              toast.error("Payment received but order creation failed. Please contact support.");
               return;
             }
 
@@ -676,12 +688,10 @@ const Checkout = () => {
                     <div className="flex justify-between text-muted-foreground">
                       <span>Delivery Charge</span>
                       <span className="font-medium text-foreground">
-                          {!selectedAddressId ? (
-                            "—"
+                          {finalDeliveryCharge === 0 ? (
+                            <span className="text-green-600 font-semibold text-xs tracking-wider uppercase">Complimentary</span>
                           ) : (
-                            (deliverySettings.force_free_delivery || (globalItemsSubtotal > 0 && globalItemsSubtotal >= deliverySettings.free_delivery_threshold && maxCustomDeliveryCharge === 0)) 
-                              ? <span className="text-green-600 font-semibold text-xs tracking-wider uppercase">Complimentary</span> 
-                              : `₹${finalDeliveryCharge}`
+                            `₹${finalDeliveryCharge}`
                           )}
                       </span>
                     </div>

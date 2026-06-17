@@ -93,7 +93,7 @@ const Header = () => {
                     <p className="px-4 pb-1 text-xs text-gray-400 truncate">{user.email}</p>
                     <hr className="my-2" />
                     <Link
-                      to="/orders"
+                      to="/my-orders"
                       onClick={() => setShowUserMenu(false)}
                       className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
@@ -148,7 +148,7 @@ const Header = () => {
             {user ? (
               <>
                 <Link
-                  to="/orders"
+                  to="/my-orders"
                   className="text-sm font-body tracking-wide py-2 border-b border-border/50 text-foreground hover:text-gold"
                   onClick={() => setMobileOpen(false)}
                 >

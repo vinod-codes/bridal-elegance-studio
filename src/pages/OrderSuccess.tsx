@@ -33,10 +33,15 @@ const OrderSuccess = () => {
   useEffect(() => {
     if (!orderId) return;
 
+    let timeoutId: any;
+
     const unsubscribe = onSnapshot(doc(db, "orders", orderId), (docSnap) => {
       if (docSnap.exists()) {
         const data = { id: docSnap.id, ...docSnap.data() } as Order;
         setOrder(data);
+        setLoading(false);
+        if (timeoutId) clearTimeout(timeoutId);
+
         // Fire GA4 purchase once per order (guard against StrictMode dup)
         const key = `ga_purchase_${orderId}`;
         if (!sessionStorage.getItem(key)) {
@@ -49,17 +54,21 @@ const OrderSuccess = () => {
         // Don't redirect home — show not-found state instead
         setOrder(null);
       }
-      setLoading(false);
     }, (error) => {
       console.error("Error fetching order:", error);
       setLoading(false);
     });
+
+    timeoutId = setTimeout(() => {
+      setLoading(false);
+    }, 10000);
 
     // Stop confetti after 8 seconds
     const timer = setTimeout(() => setShowConfetti(false), 8000);
     return () => {
       unsubscribe();
       clearTimeout(timer);
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [orderId, navigate]);
 
@@ -70,6 +79,24 @@ const OrderSuccess = () => {
           <div className="w-12 h-12 border-2 border-gold border-t-transparent rounded-full animate-spin" />
           <p className="text-stone-400 font-medium text-xs uppercase tracking-widest">Confirming Your Masterpiece</p>
         </div>
+      </div>
+    );
+  }
+
+  if (!orderId || orderId === "undefined") {
+    return (
+      <div className="min-h-screen bg-stone-50 flex flex-col">
+        <Header />
+        <main className="flex-grow pt-32 pb-20 px-4 flex items-center justify-center">
+          <div className="max-w-md text-center">
+            <h2 className="text-2xl font-bold mb-4">Invalid Order</h2>
+            <p className="text-muted-foreground mb-6">The order ID is missing or invalid. Please contact support if your payment was deducted.</p>
+            <div className="flex gap-3 justify-center">
+              <Link to="/" className="px-5 py-3 border border-stone-300 rounded-sm uppercase tracking-wider text-xs font-bold">Return to Home</Link>
+            </div>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }

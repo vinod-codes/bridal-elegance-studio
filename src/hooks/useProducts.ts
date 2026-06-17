@@ -3,7 +3,6 @@ import {
   collection,
   doc,
   onSnapshot,
-  orderBy,
   query,
   where,
   Timestamp,
@@ -73,16 +72,24 @@ export function useProducts() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Simple query: only where("isVisible","==",true) — NO composite index required.
+    // Sorting by createdAt is done client-side to avoid needing a Firestore composite index.
     const q = query(
       collection(db, "products"),
-      where("isVisible", "==", true),
-      orderBy("createdAt", "desc")
+      where("isVisible", "==", true)
     );
 
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        setProducts(mapSnapshotToProducts(snapshot));
+        const mapped = mapSnapshotToProducts(snapshot);
+        // Sort newest first client-side
+        mapped.sort((a, b) => {
+          const aTime = (a.createdAt as any)?.toDate?.()?.getTime?.() ?? 0;
+          const bTime = (b.createdAt as any)?.toDate?.()?.getTime?.() ?? 0;
+          return bTime - aTime;
+        });
+        setProducts(mapped);
         setLoading(false);
       },
       (err) => {
