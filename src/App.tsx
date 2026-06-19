@@ -21,6 +21,7 @@ import ShippingPolicy from "./pages/ShippingPolicy.tsx";
 import Auth from "./pages/Auth.tsx";
 import Orders from "./pages/Orders.tsx";
 import OrderSuccess from "./pages/OrderSuccess.tsx";
+import WhatsAppCTA from "./components/WhatsAppCTA";
 const queryClient = new QueryClient();
 
 const RouteTracker = () => {
@@ -63,6 +64,7 @@ const App = () => (
               <Route path="/refund" element={<RefundPolicy />} />
               <Route path="/shipping" element={<ShippingPolicy />} />
             </Routes>
+            <WhatsAppCTA />
           </BrowserRouter>
         </CartProvider>
       </AuthProvider>
