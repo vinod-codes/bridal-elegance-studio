@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 import { db } from "../config/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 
@@ -47,6 +48,7 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-stone-50">
+      <SEO title="Your Cart | Unique Jewelry Studio" description="Review your bridal jewellery selection." path="/cart" noindex />
       <Header />
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4 max-w-5xl">

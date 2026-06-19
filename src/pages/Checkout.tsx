@@ -9,7 +9,8 @@ import axios from "axios";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
+import SEO from "@/components/SEO";
+import { trackBeginCheckout, trackPurchase, trackAddPaymentInfo, trackAddShippingInfo } from "@/lib/analytics";
 
 declare global {
   interface Window {
