@@ -8,7 +8,6 @@ import { useWindowSize } from "react-use";
 import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import SEO from "@/components/SEO";
 import { OrderStatusTracker, OrderStatus } from "@/components/OrderStatusTracker";
 
 interface Order {

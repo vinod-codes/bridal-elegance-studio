@@ -18,7 +18,6 @@ import { Mail, Lock, ChevronRight, Sparkles, User, ArrowLeft } from 'lucide-reac
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import authLogo from '@/assets/products-page-logo.png';
-import SEO from '@/components/SEO';
 
 const GoogleIcon = () => (
     <svg viewBox="0 0 24 24" className="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg">

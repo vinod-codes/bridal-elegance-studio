@@ -6,7 +6,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { Package, ArrowRight, ShoppingBag, Truck, MapPin, CheckCircle2, Clock, XCircle } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import SEO from "@/components/SEO";
 import { Timestamp } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
 
