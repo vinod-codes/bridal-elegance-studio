@@ -9,7 +9,8 @@ import axios from "axios";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
+import SEO from "@/components/SEO";
+import { trackBeginCheckout, trackPurchase, trackAddPaymentInfo, trackAddShippingInfo } from "@/lib/analytics";
 
 declare global {
   interface Window {
@@ -215,7 +216,7 @@ const Checkout = () => {
       return;
     }
 
-    try { trackBeginCheckout(items as any, totalPrice); } catch {}
+    try { trackBeginCheckout(items as any, totalPrice); trackAddShippingInfo(totalPrice); trackAddPaymentInfo(totalPrice, "razorpay"); } catch {}
     setIsPlacingOrder(true);
     try {
       let globalItemsSubtotal = 0;
@@ -426,6 +427,7 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-stone-50">
+      <SEO title="Secure Checkout | Unique Jewelry Studio" description="Complete your bridal jewellery order securely." path="/checkout" noindex />
       {isPlacingOrder && (
         <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white rounded-2xl px-8 py-10 max-w-sm mx-4 text-center shadow-2xl">

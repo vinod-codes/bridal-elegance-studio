@@ -107,3 +107,41 @@ export function trackPurchase(orderId: string, value: number, items: any[] = [],
     })),
   });
 }
+
+export function trackViewItemList(listName: string, products: AnyProduct[]) {
+  gtagSafe("event", "view_item_list", {
+    item_list_name: listName,
+    items: products.slice(0, 20).map((p, i) => ({
+      item_id: p.id,
+      item_name: p.name,
+      item_category: p.category,
+      price: p.discountPrice ?? p.price,
+      index: i,
+    })),
+  });
+}
+
+export function trackSelectItem(listName: string, p: AnyProduct) {
+  gtagSafe("event", "select_item", {
+    item_list_name: listName,
+    items: [{ item_id: p.id, item_name: p.name, item_category: p.category, price: p.discountPrice ?? p.price }],
+  });
+}
+
+export function trackRemoveFromCart(p: AnyProduct, quantity: number, variantName?: string) {
+  const price = p.discountPrice ?? p.price;
+  gtagSafe("event", "remove_from_cart", {
+    currency: "INR",
+    value: price * quantity,
+    items: [{ item_id: p.id, item_name: p.name, item_category: p.category, item_variant: variantName, price, quantity }],
+  });
+}
+
+export function trackAddShippingInfo(value: number) {
+  gtagSafe("event", "add_shipping_info", { currency: "INR", value });
+}
+
+export function trackAddPaymentInfo(value: number, paymentType = "razorpay") {
+  gtagSafe("event", "add_payment_info", { currency: "INR", value, payment_type: paymentType });
+}
+

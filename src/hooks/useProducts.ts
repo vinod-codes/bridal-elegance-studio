@@ -65,7 +65,10 @@ export interface FirestoreProduct {
 const mapSnapshotToProducts = (snap: any) =>
   snap.docs
     .map((doc: any) => ({ id: doc.id, ...doc.data() } as FirestoreProduct))
-    .filter((product) => product.approvalStatus === "Approved" || !product.approvalStatus);
+    .filter((product) => {
+      const status = (product.approvalStatus || "").toString().toLowerCase();
+      return !status || status === "approved";
+    });
 
 export function useProducts() {
   const [products, setProducts] = useState<FirestoreProduct[]>([]);
