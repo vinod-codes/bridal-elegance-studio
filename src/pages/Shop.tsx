@@ -62,8 +62,8 @@ const Shop = () => {
   return (
     <div className="min-h-screen">
       <SEO
-        title={`${catLabel} | Shop Bridal Jewellery Online — Unique Jewelry Studio`}
-        description={`Shop ${catLabel.toLowerCase()} online at Unique Jewelry Studio. Handmade gold-plated bridal jewellery for Haldi, Mehndi & Weddings. Free shipping above ₹999.`}
+        title={activeCategory === "all" ? "Shop Bridal Jewellery | Haldi, Mehndi & Wedding | UJS" : `${catLabel} | Bridal Jewellery Online — UJS`}
+        description={`Browse ${catLabel.toLowerCase()} — handmade gold-plated bridal jewellery for Haldi, Mehndi & Weddings. Free shipping above ₹999. Shop at UJS.`.slice(0, 158)}
         path={activeCategory === "all" ? "/shop" : `/shop?category=${encodeURIComponent(activeCategory)}`}
       />
       <AnnouncementBar />
