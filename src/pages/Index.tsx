@@ -14,8 +14,8 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <SEO
-        title="Unique Jewelry Studio | Handmade Bridal Jewellery — Haldi, Mehndi & Wedding Sets India"
-        description="Shop handmade bridal jewellery online in India. Gold-plated Haldi, Mehndi & Wedding sets, custom designs, free shipping above ₹999. Trusted by 500+ brides."
+        title="Handmade Bridal Jewellery India | Unique Jewelry Studio"
+        description="Shop handmade bridal jewellery online — Haldi, Mehndi & Wedding sets. Gold-plated, custom designs. Free shipping above ₹999. Trusted by 500+ brides."
         path="/"
       />
       <AnnouncementBar />
