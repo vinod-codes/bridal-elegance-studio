@@ -1,12 +1,30 @@
 User-agent: *
 Allow: /
 
-# Block private pages from indexing
-Disallow: /checkout
-Disallow: /cart
-Disallow: /auth
-Disallow: /my-orders
-Disallow: /order-success
-Disallow: /admin
+Disallow: /api/
+Disallow: /admin/
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /account/
+Disallow: /my-orders/
+Disallow: /order-success/
+Disallow: /auth/
+Disallow: /*.json$
+Disallow: /images/products/*?size=
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /images/
+
+User-agent: bingbot
+Allow: /
+
+User-agent: AhrefsBot
+Allow: /
+
+User-agent: SEMrushBot
+Allow: /
 
 Sitemap: https://www.theujs.com/sitemap.xml

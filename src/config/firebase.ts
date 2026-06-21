@@ -5,7 +5,7 @@ import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCQyGmqPwOE08baGIhvm9slnYvX43oIyqI",
-  authDomain: "www.theujs.com",
+  authDomain: "unique-jewelry-studio.firebaseapp.com",
   projectId: "unique-jewelry-studio",
   storageBucket: "unique-jewelry-studio.firebasestorage.app",
   messagingSenderId: "953683503589",

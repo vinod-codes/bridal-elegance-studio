@@ -122,3 +122,83 @@
   0% { transform: translateX(100%); }
   100% { transform: translateX(-100%); }
 }
+
+/* ── Cart UX System Animations ─────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes cartBadgePop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.45); }
+  70%  { transform: scale(0.88); }
+  100% { transform: scale(1); }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(120%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes slideOutRight {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(120%); opacity: 0; }
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes slideOutDown {
+  from { transform: translateY(0);    opacity: 1; }
+  to   { transform: translateY(100%); opacity: 0; }
+}
+
+@keyframes flyToCart {
+  0%   { transform: scale(1)   translate(0, 0);        opacity: 1; }
+  80%  { transform: scale(0.3) translate(var(--fly-x), var(--fly-y)); opacity: 0.7; }
+  100% { transform: scale(0)   translate(var(--fly-x), var(--fly-y)); opacity: 0; }
+}
+
+.cart-badge-animate {
+  animation: cartBadgePop 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes iconBounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.2) translateY(-4px); }
+  70% { transform: scale(0.95) translateY(2px); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+.cart-bounce {
+  animation: iconBounce 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .cart-badge-animate,
+  .spinner,
+  .announcement-scroll,
+  .fade-in-section {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+

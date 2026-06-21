@@ -1,9 +1,15 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 
 const RefundPolicy = () => {
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO 
+        title="Refund Policy | Unique Jewelry Studio" 
+        description="Learn about our return and refund policy for handmade bridal jewellery." 
+        path="/refund" 
+      />
       <Header />
       <main className="flex-grow container py-16 max-w-3xl mx-auto px-4">
         <h1 className="font-heading text-3xl md:text-4xl font-medium mb-2">Refund &amp; Return Policy</h1>

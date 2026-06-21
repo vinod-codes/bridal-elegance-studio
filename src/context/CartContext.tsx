@@ -20,6 +20,7 @@ interface CartContextType {
   updateQuantity: (productId: string, quantity: number, variantId?: string) => void;
   toggleCart: () => void;
   closeCart: () => void;
+  openCart: () => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
@@ -76,7 +77,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return [...prev, { product, quantity: finalQty, variantId, variantName }];
     });
     try { trackAddToCart(product as any, quantity, variantName); } catch {}
-    setIsOpen(true);
+    // Cart toast handles visual feedback; don't auto-open the drawer
   }, []);
 
   const removeFromCart = useCallback((productId: string, variantId?: string) => {
@@ -106,25 +107,24 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   }, []);
 
-  const toggleCart = useCallback(() => setIsOpen((p) => !p), []);
+  const toggleCart = useCallback(() => setIsOpen(prev => !prev), []);
   const closeCart = useCallback(() => setIsOpen(false), []);
+  const openCart = useCallback(() => setIsOpen(true), []);
   const clearCart = useCallback(() => setItems([]), []);
 
-  const totalItems = items.reduce((s, i) => s + i.quantity, 0);
-  // Use variant price if present, else discountPrice (sale price), else original price
-  const totalPrice = items.reduce((s, i) => {
-    let unitPrice = i.product.discountPrice ?? i.product.price;
-    if (i.variantId && i.product.variants) {
-      const variant = i.product.variants.find(v => v.id === i.variantId);
-      if (variant?.price !== undefined) unitPrice = variant.price;
-    }
-    return s + unitPrice * i.quantity;
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = items.reduce((sum, item) => {
+    const p = item.variantId && item.product.variants
+      ? item.product.variants.find(v => v.id === item.variantId)?.price ?? (item.product.discountPrice ?? item.product.price)
+      : (item.product.discountPrice ?? item.product.price);
+    return sum + (p * item.quantity);
   }, 0);
 
   return (
-    <CartContext.Provider
-      value={{ items, isOpen, addToCart, removeFromCart, updateQuantity, toggleCart, closeCart, clearCart, totalItems, totalPrice }}
-    >
+    <CartContext.Provider value={{
+      items, isOpen, addToCart, removeFromCart, updateQuantity,
+      toggleCart, closeCart, openCart, clearCart, totalItems, totalPrice
+    }}>
       {children}
     </CartContext.Provider>
   );

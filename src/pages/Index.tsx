@@ -8,6 +8,8 @@ import GoogleReviews from "@/components/GoogleReviews";
 import VideoGallery from "@/components/VideoGallery";
 import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
+import FAQSection from "@/components/FAQSection";
+import NewsletterSection from "@/components/NewsletterSection";
 
 
 const Index = () => {
@@ -27,7 +29,8 @@ const Index = () => {
         <TrustBadges />
         <VideoGallery />
         <GoogleReviews />
-        
+        <FAQSection />
+        <NewsletterSection />
       </main>
       <Footer />
     </div>

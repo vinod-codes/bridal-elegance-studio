@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-
 import { Search, User, ShoppingBag, Menu, X, LogOut, Package } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -20,6 +19,21 @@ const Header = () => {
   const { toggleCart, totalItems } = useCart();
   const { user, logout } = useAuth();
   const location = useLocation();
+
+  /* ── Animated cart badge ── */
+  const prevCount = useRef(totalItems);
+  const [badgeAnimate, setBadgeAnimate] = useState(false);
+
+  useEffect(() => {
+    if (totalItems > prevCount.current) {
+      setBadgeAnimate(false);
+      // Force reflow so animation re-triggers
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setBadgeAnimate(true));
+      });
+    }
+    prevCount.current = totalItems;
+  }, [totalItems]);
 
   const handleSignOut = async () => {
     await logout();
@@ -41,7 +55,11 @@ const Header = () => {
 
         {/* Logo */}
         <Link to="/" className="absolute left-1/2 z-10 flex w-[150px] -translate-x-1/2 items-center justify-center overflow-hidden py-2 md:static md:w-[220px] md:translate-x-0 md:justify-self-start lg:w-[280px]">
-          <img src={headerLogo} alt="Unique Jewelry Studio - Handcrafted Elegance" className="max-h-11 w-full origin-left scale-[1.18] object-contain object-left md:max-h-16 md:scale-[1.28] lg:max-h-[4.5rem] lg:scale-[1.34]" />
+          <img
+            src={headerLogo}
+            alt="Unique Jewelry Studio - Handcrafted Elegance"
+            className="max-h-11 w-full origin-left scale-[1.18] object-contain object-left md:max-h-16 md:scale-[1.28] lg:max-h-[4.5rem] lg:scale-[1.34]"
+          />
         </Link>
 
         {/* Desktop Nav */}
@@ -50,8 +68,9 @@ const Header = () => {
             <Link
               key={link.label}
               to={link.to}
-              className={`text-sm font-body tracking-wide transition-colors hover:text-gold ${location.pathname === link.to ? "text-gold font-medium" : "text-foreground"
-                }`}
+              className={`text-sm font-body tracking-wide transition-colors hover:text-gold ${
+                location.pathname === link.to ? "text-gold font-medium" : "text-foreground"
+              }`}
             >
               {link.label}
             </Link>
@@ -115,19 +134,28 @@ const Header = () => {
             )}
           </div>
 
-          {/* Cart */}
-          <Link
-            to="/cart"
-            className="p-2 text-foreground hover:text-gold transition-colors relative"
-            aria-label="Cart"
+          {/* Cart — now opens drawer, not navigates */}
+          <button
+            id="cart-icon"
+            onClick={toggleCart}
+            className={`p-2 text-foreground hover:text-gold transition-all duration-200 hover:scale-110 relative ${
+              badgeAnimate ? "cart-bounce text-gold" : ""
+            }`}
+            aria-label={`Cart, ${totalItems} item${totalItems !== 1 ? "s" : ""}`}
           >
             <ShoppingBag size={20} />
             {totalItems > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-gold text-primary-foreground text-[10px] font-medium rounded-full w-4 h-4 flex items-center justify-center">
-                {totalItems}
+              <span
+                key={totalItems} // Force re-mount to retrigger animation
+                className={`absolute -top-0.5 -right-0.5 bg-gold text-primary-foreground text-[10px] font-bold rounded-full w-[18px] h-[18px] flex items-center justify-center border-2 border-background ${
+                  badgeAnimate ? "cart-badge-animate" : ""
+                }`}
+                onAnimationEnd={() => setBadgeAnimate(false)}
+              >
+                {totalItems > 99 ? "99+" : totalItems}
               </span>
             )}
-          </Link>
+          </button>
         </div>
       </div>
 

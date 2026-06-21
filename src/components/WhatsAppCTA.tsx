@@ -1,6 +1,6 @@
 import { MessageCircle } from "lucide-react";
 
-const WHATSAPP_NUMBER = "919999999999"; // TODO: replace with real UJS WhatsApp number
+const WHATSAPP_NUMBER = "919529707370"; // UJS official WhatsApp number
 const MESSAGE = encodeURIComponent(
   "Hi Unique Jewellery Studio! I'd like help choosing the perfect bridal set."
 );

@@ -1,9 +1,15 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 
 const ShippingPolicy = () => {
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO 
+        title="Shipping Policy | Unique Jewelry Studio" 
+        description="Learn about our shipping policy, processing times, and delivery locations across India for handmade bridal jewellery." 
+        path="/shipping" 
+      />
       <Header />
       <main className="flex-grow container py-16 max-w-3xl mx-auto px-4">
         <h1 className="font-heading text-3xl md:text-4xl font-medium mb-2">Shipping Policy</h1>

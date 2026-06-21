@@ -1,7 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
-  ShoppingBag,
   Minus,
   Plus,
   Star,
@@ -18,10 +17,13 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import SEO from "@/components/SEO";
+import AddToCartButton from "@/components/AddToCartButton";
+import TrustBadges from "@/components/TrustBadges";
+import GoogleReviews from "@/components/GoogleReviews";
 import { useProduct, useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/context/CartContext";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
 
 /* ─── Rating Donut Chart ─── */
 const ratingData = [
@@ -180,7 +182,8 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { product, loading } = useProduct(id);
   const { products: allProducts } = useProducts();
-  const { addToCart } = useCart();
+  const { addToCart } = useCart(); // Still used for Buy Now flow
+
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false); 
@@ -581,20 +584,14 @@ const ProductDetail = () => {
                       </button>
                     </div>
 
-                    {/* Add to Cart */}
-                    <button
-                      onClick={() => {
-                        addToCart(product, qty, selectedVariantId || undefined, currentVariant?.colorName);
-                        toast.success(`${product.name} added to cart`, {
-                          icon: '🛍️',
-                          action: { label: "Checkout", onClick: () => navigate("/cart") }
-                        });
-                      }}
-                      className="flex-1 bg-[#2c3e50] hover:bg-[#1a252f] text-white rounded-xl font-heading font-bold tracking-[0.1em] uppercase text-sm shadow-lg shadow-black/10 transition-all flex items-center justify-center gap-2"
-                    >
-                      <ShoppingBag size={18} />
-                      Add to Bag
-                    </button>
+                    {/* Add to Cart — animated button with toast */}
+                    <AddToCartButton
+                      product={product}
+                      variantId={selectedVariantId || undefined}
+                      variantName={currentVariant?.colorName}
+                      price={currentPrice}
+                      className="flex-1 h-full rounded-xl font-heading font-bold tracking-[0.1em] text-sm shadow-lg shadow-black/10"
+                    />
                   </div>
                 )}
 
@@ -698,6 +695,12 @@ const ProductDetail = () => {
           </section>
         )}
       </main>
+
+      {/* Trust Badges & Reviews for Social Proof */}
+      <div className="bg-[#f8f9fa] mt-16">
+        <TrustBadges />
+        <GoogleReviews />
+      </div>
 
       <Footer />
     </div>
