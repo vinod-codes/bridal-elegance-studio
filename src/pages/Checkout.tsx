@@ -277,7 +277,7 @@ const Checkout = () => {
       const orderItems = items.map(({ product, quantity, variantId, variantName }) => {
         const variant = variantId && product.variants ? product.variants.find(v => v.id === variantId) : null;
         // Use Cloudinary thumbnail — never send base64 or original heavy URLs
-        const rawImg = variant?.images?.[0] || product.media?.[0]?.thumbnail || product.images?.[0] || product.image;
+        const rawImg = variant?.images?.[0] || product.media?.[0]?.small || product.images?.[0] || product.image;
         const safeImg = (typeof rawImg === 'string' && rawImg.startsWith('data:image')) ? '' : (rawImg || '');
         return {
           productId: product.id,

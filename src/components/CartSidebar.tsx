@@ -68,7 +68,7 @@ const CartSidebar = () => {
                 const variant = variantId && product.variants ? product.variants.find(v => v.id === variantId) : null;
                 const displayImage =
                   variant?.images?.[0] ||
-                  product.media?.[0]?.thumbnail ||
+                  product.media?.[0]?.small ||
                   product.images?.[0] ||
                   product.image ||
                   "/placeholder.jpg";
