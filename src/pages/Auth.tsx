@@ -36,6 +36,8 @@ const Auth = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    // Redirect target passed from Cart/Checkout (e.g. "/checkout")
+    const redirectTo = (location.state as any)?.redirectTo || "/";
 
     const [authMode, setAuthMode] = useState<string | null>(null);
     const [oobCode, setOobCode] = useState<string | null>(null);
@@ -63,7 +65,7 @@ const Auth = () => {
         try {
             await applyActionCode(auth, code);
             toast.success('Email verified successfully!');
-            navigate('/');
+            navigate(redirectTo);
         } catch (error: any) {
             toast.error('Failed to verify email: ' + error.message);
         } finally {
@@ -94,7 +96,7 @@ const Auth = () => {
                 }
                 
                 toast.success('Signed in with Magic Link!');
-                navigate('/');
+                navigate(redirectTo);
             } catch (error: any) {
                 toast.error('Failed to sign in with link: ' + error.message);
             } finally {
@@ -157,7 +159,7 @@ const Auth = () => {
                 });
             }
             toast.success('Signed in with Google!');
-            navigate('/');
+            navigate(redirectTo);
         } catch (error: any) {
             console.error('Detailed Google Auth Error:', error);
             
@@ -181,8 +183,8 @@ const Auth = () => {
         try {
             if (isLogin) {
                 await signInWithEmailAndPassword(auth, email, password);
-                toast.success('Welcome back!');
-                navigate('/');
+                toast.success("Welcome back! You're ready to checkout.");
+                navigate(redirectTo);
             } else {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
@@ -197,7 +199,7 @@ const Auth = () => {
                 await sendEmailVerification(user, { url: 'https://www.theujs.com/auth' });
                 toast.success('Account created! Please check your email to verify.');
                 
-                navigate('/');
+                navigate(redirectTo);
             }
         } catch (error: any) {
             const message = error instanceof Error ? error.message : "Authentication failed";

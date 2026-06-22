@@ -38,6 +38,10 @@ const Cart = () => {
   }, []);
 
   const handleProceedToCheckout = () => {
+    if (!user) {
+      navigate("/auth", { state: { redirectTo: "/checkout" } });
+      return;
+    }
     navigate("/checkout");
   };
 
@@ -68,7 +72,12 @@ const Cart = () => {
                   {items.map(({ product, quantity, variantId, variantName }) => {
                     // Find specific variant data for images and pricing
                     const variant = variantId && product.variants ? product.variants.find(v => v.id === variantId) : null;
-                    const displayImage = variant?.images?.[0] || product.images?.[0] || product.image || "/placeholder.jpg";
+                    const displayImage =
+                      variant?.images?.[0] ||
+                      (product.media?.[0]?.thumbnail) ||
+                      product.images?.[0] ||
+                      product.image ||
+                      "/placeholder.jpg";
                     const unitPrice = variant?.price ?? product.discountPrice ?? product.price;
                     const originalPrice = variant?.price ? null : (product.discountPrice ? product.price : null);
                     const stockLimit = variant?.stock ?? product.stock ?? 99;
@@ -247,10 +256,23 @@ const Cart = () => {
                   </div>
                   <button
                     onClick={handleProceedToCheckout}
-                    className="w-full bg-gold text-primary-foreground py-3.5 rounded-sm font-body font-medium tracking-wide uppercase btn-glow hover:bg-gold/90 transition-all"
+                    className={`w-full py-3.5 rounded-sm font-body font-medium tracking-wide uppercase transition-all ${
+                      user
+                        ? "bg-gold text-primary-foreground btn-glow hover:bg-gold/90"
+                        : "bg-stone-800 text-white hover:bg-stone-700 flex items-center justify-center gap-2"
+                    }`}
                   >
-                    Proceed to Checkout
+                    {user ? "Proceed to Checkout" : (
+                      <>
+                        <span>🔒</span> Login To Purchase
+                      </>
+                    )}
                   </button>
+                  {!user && (
+                    <p className="text-xs text-center text-muted-foreground mt-2">
+                      Please login to continue your purchase securely.
+                    </p>
+                  )}
                   
                   <div className="pt-3 pb-1 text-center border-b border-border/30 mb-2">
                     <a 

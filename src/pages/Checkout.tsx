@@ -136,27 +136,17 @@ const Checkout = () => {
     };
   }, []);
 
+  // Redirect guests immediately — no guest checkout allowed
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth", { state: { redirectTo: "/checkout" } });
+    }
+  }, [user, loading, navigate]);
+
   // Fetch Addresses
   useEffect(() => {
     if (loading) return;
-
-    if (!user) {
-      const guestAddressesStr = sessionStorage.getItem("guestAddresses");
-      if (guestAddressesStr) {
-        const guestAddresses = JSON.parse(guestAddressesStr) as Address[];
-        setAddresses(guestAddresses);
-        if (guestAddresses.length > 0) {
-          setSelectedAddressId(guestAddresses[0].id);
-          validatePincode(guestAddresses[0].pincode);
-        } else {
-          setShowAddForm(true);
-        }
-      } else {
-        setShowAddForm(true);
-      }
-      setIsLoadingAddresses(false);
-      return;
-    }
+    if (!user) return; // will be redirected by guard above
 
     const fetchAddresses = async () => {
       try {
@@ -286,6 +276,9 @@ const Checkout = () => {
 
       const orderItems = items.map(({ product, quantity, variantId, variantName }) => {
         const variant = variantId && product.variants ? product.variants.find(v => v.id === variantId) : null;
+        // Use Cloudinary thumbnail — never send base64 or original heavy URLs
+        const rawImg = variant?.images?.[0] || product.media?.[0]?.thumbnail || product.images?.[0] || product.image;
+        const safeImg = (typeof rawImg === 'string' && rawImg.startsWith('data:image')) ? '' : (rawImg || '');
         return {
           productId: product.id,
           variantId: variantId || null,
@@ -293,25 +286,23 @@ const Checkout = () => {
           name: product.name,
           price: variant?.price ?? product.discountPrice ?? product.price,
           originalPrice: product.price,
-          image: (() => {
-            const img = variant?.images?.[0] || product.images?.[0] || product.image;
-            if (typeof img === 'string' && img.startsWith('data:image')) {
-              return ''; // Strip base64 image strings from payload to avoid 413 errors
-            }
-            return img || '';
-          })(),
+          image: safeImg,
           quantity,
         };
       });
 
-      // 2. Create Razorpay order on backend (HMAC-signed, tamper-proof)
+      // 2. Create Razorpay order on backend (HMAC-signed, tamper-proof, auth-protected)
       const API_URL = import.meta.env.VITE_API_URL || "";
+      // Attach Firebase ID token — backend verifyFirebaseToken middleware requires this
+      const idToken = user ? await user.getIdToken() : "";
       const { data: razorpayOrder } = await axios.post(`${API_URL}/api/create-order`, {
         amount: finalAmount,
         currency: "INR",
         receipt: `checkout_${Date.now()}`,
         orderData: orderData,
         items: orderItems
+      }, {
+        headers: { Authorization: `Bearer ${idToken}` }
       });
 
       const pendingOrderId = razorpayOrder.pendingOrderId;

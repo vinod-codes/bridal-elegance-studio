@@ -59,9 +59,14 @@ const CartDrawer = () => {
   }, [isOpen]);
 
   const handleCheckout = useCallback(() => {
+    if (!user) {
+      closeCart();
+      navigate("/auth", { state: { redirectTo: "/checkout" } });
+      return;
+    }
     closeCart();
     navigate("/cart");
-  }, [closeCart, navigate]);
+  }, [closeCart, navigate, user]);
 
   const subtotal = totalPrice;
   const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 99;
@@ -170,6 +175,7 @@ const CartDrawer = () => {
                     : null;
                 const displayImage =
                   variant?.images?.[0] ||
+                  product.media?.[0]?.thumbnail ||
                   product.images?.[0] ||
                   product.image ||
                   "/placeholder.jpg";
@@ -271,19 +277,32 @@ const CartDrawer = () => {
             <button
               onClick={handleCheckout}
               disabled={placing}
-              className="w-full bg-gold text-primary-foreground py-3.5 rounded-sm font-body font-medium tracking-wide uppercase btn-glow disabled:opacity-70 transition-all hover:opacity-90 mt-1 flex items-center justify-center gap-2"
+              className={`w-full py-3.5 rounded-sm font-body font-medium tracking-wide uppercase disabled:opacity-70 transition-all hover:opacity-90 mt-1 flex items-center justify-center gap-2 ${
+                user
+                  ? "bg-gold text-primary-foreground btn-glow"
+                  : "bg-stone-800 text-white hover:bg-stone-700"
+              }`}
             >
               {placing ? (
                 <>
                   <span className="spinner" aria-hidden="true" /> Loading…
                 </>
-              ) : (
+              ) : user ? (
                 <>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                   View Cart
                 </>
+              ) : (
+                <>
+                  <span>🔒</span> Login To Purchase
+                </>
               )}
             </button>
+            {!user && (
+              <p className="text-[11px] text-center text-muted-foreground mt-1.5">
+                Please login to continue your purchase securely.
+              </p>
+            )}
 
             {/* Conversion Optimization Badges */}
             <div className="flex flex-col items-center gap-2 pt-3 pb-1 text-[11px] font-body text-muted-foreground uppercase tracking-wider">

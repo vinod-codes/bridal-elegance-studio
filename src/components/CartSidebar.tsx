@@ -35,6 +35,11 @@ const CartSidebar = () => {
       toast.error("Your cart is empty");
       return;
     }
+    if (!user) {
+      closeCart();
+      navigate("/auth", { state: { redirectTo: "/checkout" } });
+      return;
+    }
     closeCart();
     navigate("/checkout");
   };
@@ -61,7 +66,12 @@ const CartSidebar = () => {
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {items.map(({ product, quantity, variantId, variantName }) => {
                 const variant = variantId && product.variants ? product.variants.find(v => v.id === variantId) : null;
-                const displayImage = variant?.images?.[0] || product.images?.[0] || product.image || "/placeholder.jpg";
+                const displayImage =
+                  variant?.images?.[0] ||
+                  product.media?.[0]?.thumbnail ||
+                  product.images?.[0] ||
+                  product.image ||
+                  "/placeholder.jpg";
                 const unitPrice = variant?.price ?? product.discountPrice ?? product.price;
                 const stockLimit = variant?.stock ?? product.stock ?? 99;
 
@@ -117,10 +127,21 @@ const CartSidebar = () => {
               <button
                 onClick={handleCheckout}
                 disabled={placing}
-                className="w-full bg-gold text-primary-foreground py-3 rounded-sm font-body font-medium tracking-wide uppercase btn-glow disabled:opacity-70"
+                className={`w-full py-3 rounded-sm font-body font-medium tracking-wide uppercase btn-glow disabled:opacity-70 flex items-center justify-center gap-2 ${
+                  user
+                    ? "bg-gold text-primary-foreground"
+                    : "bg-stone-800 text-white hover:bg-stone-700"
+                }`}
               >
-                Proceed to Checkout
+                {user ? "Proceed to Checkout" : (
+                  <><span>🔒</span> Login To Purchase</>
+                )}
               </button>
+              {!user && (
+                <p className="text-xs text-center text-muted-foreground mt-1.5">
+                  Please login to continue your purchase securely.
+                </p>
+              )}
               
               <div className="pt-2 text-center">
                 <a 
