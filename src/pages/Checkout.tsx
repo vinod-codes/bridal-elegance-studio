@@ -30,6 +30,42 @@ interface Address {
   country: string;
 }
 
+const calculateDeliveryCharge = (items: any[], deliverySettings: any, shippingInfo: any) => {
+  let globalItemsSubtotal = 0;
+  let maxCustomDeliveryCharge = 0;
+
+  items.forEach(i => {
+    const product = i.product;
+    let unitPrice = product.discountPrice ?? product.price;
+    if (i.variantId && product.variants) {
+      const variant = product.variants.find((v: any) => v.id === i.variantId);
+      if (variant?.price !== undefined) unitPrice = variant.price;
+    }
+    const itemTotal = unitPrice * i.quantity;
+
+    const deliveryConfig = product.deliveryConfig || { useGlobalDelivery: true, customDeliveryCharge: 0, freeDelivery: false };
+    if (deliveryConfig.freeDelivery) {
+      // no charge
+    } else if (!deliveryConfig.useGlobalDelivery) {
+      const customCharge = Number(deliveryConfig.customDeliveryCharge || 0);
+      if (customCharge > maxCustomDeliveryCharge) maxCustomDeliveryCharge = customCharge;
+    } else {
+      globalItemsSubtotal += itemTotal;
+    }
+  });
+
+  let globalDeliveryContribution = 0;
+  if (!deliverySettings.force_free_delivery && globalItemsSubtotal > 0 && globalItemsSubtotal < deliverySettings.free_delivery_threshold) {
+      globalDeliveryContribution = shippingInfo?.delivery_charge || deliverySettings.default_delivery_charge;
+  }
+  
+  let finalDeliveryCharge = Math.max(globalDeliveryContribution, maxCustomDeliveryCharge);
+  if (!shippingInfo?.serviceable) finalDeliveryCharge = 0;
+  if (deliverySettings.force_free_delivery) finalDeliveryCharge = 0;
+  
+  return finalDeliveryCharge;
+};
+
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
   const { user, profile, loading } = useAuth();
@@ -219,37 +255,7 @@ const Checkout = () => {
     try { trackBeginCheckout(items as any, totalPrice); trackAddShippingInfo(totalPrice); trackAddPaymentInfo(totalPrice, "razorpay"); } catch {}
     setIsPlacingOrder(true);
     try {
-      let globalItemsSubtotal = 0;
-      let maxCustomDeliveryCharge = 0;
-
-      items.forEach(i => {
-        const product = i.product;
-        let unitPrice = product.discountPrice ?? product.price;
-        if (i.variantId && product.variants) {
-          const variant = product.variants.find(v => v.id === i.variantId);
-          if (variant?.price !== undefined) unitPrice = variant.price;
-        }
-        const itemTotal = unitPrice * i.quantity;
-
-        const deliveryConfig = product.deliveryConfig || { useGlobalDelivery: true, customDeliveryCharge: 0, freeDelivery: false };
-        if (deliveryConfig.freeDelivery) {
-          // no charge
-        } else if (!deliveryConfig.useGlobalDelivery) {
-          const customCharge = Number(deliveryConfig.customDeliveryCharge || 0);
-          if (customCharge > maxCustomDeliveryCharge) maxCustomDeliveryCharge = customCharge;
-        } else {
-          globalItemsSubtotal += itemTotal;
-        }
-      });
-
-      // 1. Calculate final amount
-      let globalDeliveryContribution = 0;
-      if (!deliverySettings.force_free_delivery && globalItemsSubtotal > 0 && globalItemsSubtotal < deliverySettings.free_delivery_threshold) {
-         globalDeliveryContribution = shippingInfo?.delivery_charge ?? deliverySettings.default_delivery_charge;
-      }
-      
-      let shippingCharge = Math.max(globalDeliveryContribution, maxCustomDeliveryCharge);
-      if (deliverySettings.force_free_delivery) shippingCharge = 0;
+      let shippingCharge = calculateDeliveryCharge(items, deliverySettings, shippingInfo);
       
       const finalAmount = totalPrice + shippingCharge;
 
@@ -384,37 +390,7 @@ const Checkout = () => {
     }
   };
    
-  let globalItemsSubtotal = 0;
-  let maxCustomDeliveryCharge = 0;
-
-  items.forEach(i => {
-    const product = i.product;
-    let unitPrice = product.discountPrice ?? product.price;
-    if (i.variantId && product.variants) {
-      const variant = product.variants.find(v => v.id === i.variantId);
-      if (variant?.price !== undefined) unitPrice = variant.price;
-    }
-    const itemTotal = unitPrice * i.quantity;
-
-    const deliveryConfig = product.deliveryConfig || { useGlobalDelivery: true, customDeliveryCharge: 0, freeDelivery: false };
-    if (deliveryConfig.freeDelivery) {
-      // no charge
-    } else if (!deliveryConfig.useGlobalDelivery) {
-      const customCharge = Number(deliveryConfig.customDeliveryCharge || 0);
-      if (customCharge > maxCustomDeliveryCharge) maxCustomDeliveryCharge = customCharge;
-    } else {
-      globalItemsSubtotal += itemTotal;
-    }
-  });
-
-  let globalDeliveryContribution = 0;
-  if (!deliverySettings.force_free_delivery && globalItemsSubtotal > 0 && globalItemsSubtotal < deliverySettings.free_delivery_threshold) {
-      globalDeliveryContribution = shippingInfo?.delivery_charge || deliverySettings.default_delivery_charge;
-  }
-  
-  let finalDeliveryCharge = Math.max(globalDeliveryContribution, maxCustomDeliveryCharge);
-  if (!shippingInfo?.serviceable) finalDeliveryCharge = 0;
-  if (deliverySettings.force_free_delivery) finalDeliveryCharge = 0;
+  let finalDeliveryCharge = calculateDeliveryCharge(items, deliverySettings, shippingInfo);
 
   const finalTotal = totalPrice + finalDeliveryCharge;
 

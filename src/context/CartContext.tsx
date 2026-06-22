@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import type { FirestoreProduct } from "@/hooks/useProducts";
 import { trackAddToCart } from "@/lib/analytics";
+import { db } from "@/config/firebase";
+import { doc, getDoc, getDocs, collection, query } from "firebase/firestore";
 
 // Re-export for convenience so existing imports still work
 export type Product = FirestoreProduct;
@@ -29,19 +31,86 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("bridal_cart");
-      return saved ? JSON.parse(saved) : [];
-    }
-    return [];
-  });
+  const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  // Save to localStorage on change
-  React.useEffect(() => {
-    localStorage.setItem("bridal_cart", JSON.stringify(items));
-  }, [items]);
+  // Hydrate cart from localStorage
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = localStorage.getItem("bridal_cart");
+    if (!saved) {
+      setIsHydrated(true);
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        setIsHydrated(true);
+        return;
+      }
+
+      // Check if old format (contains full product object)
+      if (parsed[0].product) {
+        localStorage.removeItem("bridal_cart");
+        setIsHydrated(true);
+        return;
+      }
+
+      // New minimal format: hydrate full products
+      const hydrateCart = async () => {
+        try {
+          const hydratedItems = await Promise.all(
+            parsed.map(async (item: any) => {
+              const docRef = doc(db, "products", item.productId);
+              const snap = await getDoc(docRef);
+              if (!snap.exists()) return null;
+
+              const product = { id: snap.id, ...snap.data() } as FirestoreProduct;
+              
+              if (item.variantId || (product.variants && product.variants.length > 0)) {
+                const vSnap = await getDocs(query(collection(db, "products", item.productId, "variants")));
+                product.variants = vSnap.docs.map(d => ({ id: d.id, ...d.data() } as any));
+              }
+
+              return {
+                product,
+                variantId: item.variantId,
+                variantName: item.variantName,
+                quantity: item.quantity
+              } as CartItem;
+            })
+          );
+          setItems(hydratedItems.filter(Boolean) as CartItem[]);
+        } catch (error) {
+          console.error("Failed to hydrate cart:", error);
+          localStorage.removeItem("bridal_cart");
+        } finally {
+          setIsHydrated(true);
+        }
+      };
+
+      hydrateCart();
+    } catch (e) {
+      console.error("Error parsing cart:", e);
+      localStorage.removeItem("bridal_cart");
+      setIsHydrated(true);
+    }
+  }, []);
+
+  // Save to localStorage on change, but only minimal data
+  useEffect(() => {
+    if (!isHydrated) return; // Don't overwrite before hydration finishes
+    
+    const minimalCart = items.map(item => ({
+      productId: item.product.id,
+      variantId: item.variantId,
+      variantName: item.variantName,
+      quantity: item.quantity
+    }));
+    localStorage.setItem("bridal_cart", JSON.stringify(minimalCart));
+  }, [items, isHydrated]);
 
   const addToCart = useCallback((product: Product, quantity: number = 1, variantId?: string, variantName?: string) => {
     // Determine stock based on variant or master

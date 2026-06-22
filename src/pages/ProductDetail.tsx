@@ -631,6 +631,7 @@ const ProductDetail = () => {
                 </div>
               </div>
 
+              </div>
             </div>
           </div>
         {/* Related Products Section */}

@@ -101,10 +101,6 @@ const ProductCard = ({ product }: Props) => {
           </div>
 
           <div className="flex items-center gap-1 mb-2.5">
-            <div className="flex text-gold text-[10px]">
-              ★★★★★
-            </div>
-            <span className="text-[11px] text-muted-foreground font-medium">(4.8)</span>
           </div>
 
           <div className="text-[11px] text-muted-foreground mt-auto mb-4 flex items-center gap-1.5">

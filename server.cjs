@@ -11,9 +11,17 @@ require("dotenv").config();
 // ── Firebase Admin Initialisation ─────────────────────────────────────────────
 if (getApps().length === 0) {
   try {
-    const credential = process.env.FIREBASE_SERVICE_ACCOUNT
-      ? cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))
-      : undefined;
+    const credential = process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY
+      ? cert({
+          projectId: "unique-jewelry-studio",
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          // Replace escaped newlines with actual newlines to support Railway env var format
+          privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        })
+      : process.env.FIREBASE_SERVICE_ACCOUNT
+        ? cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))
+        : undefined;
+    
     initializeApp({ credential, projectId: "unique-jewelry-studio" });
   } catch (e) {
     console.error("Firebase admin init error:", e.message);
