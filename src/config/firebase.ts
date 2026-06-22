@@ -4,7 +4,7 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCQyGmqPwOE08baGIhvm9slnYvX43oIyqI",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "dummy_api_key",
   authDomain: "unique-jewelry-studio.firebaseapp.com",
   projectId: "unique-jewelry-studio",
   storageBucket: "unique-jewelry-studio.firebasestorage.app",

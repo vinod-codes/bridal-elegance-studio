@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs, query, orderBy, where } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCQyGmqPwOE08baGIhvm9slnYvX43oIyqI",
+  apiKey: process.env.FIREBASE_API_KEY || "",
   authDomain: "www.theujs.com",
   projectId: "unique-jewelry-studio",
   storageBucket: "unique-jewelry-studio.firebasestorage.app",

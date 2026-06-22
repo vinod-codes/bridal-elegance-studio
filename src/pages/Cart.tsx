@@ -38,11 +38,6 @@ const Cart = () => {
   }, []);
 
   const handleProceedToCheckout = () => {
-    if (!user) {
-      toast.error("Please sign in to proceed to checkout");
-      navigate("/auth");
-      return;
-    }
     navigate("/checkout");
   };
 
@@ -256,6 +251,38 @@ const Cart = () => {
                   >
                     Proceed to Checkout
                   </button>
+                  
+                  <div className="pt-3 pb-1 text-center border-b border-border/30 mb-2">
+                    <a 
+                      href="https://wa.me/919529707370" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-xs text-muted-foreground hover:text-gold transition-colors inline-flex items-center gap-1.5"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                      Need Assistance? Chat with our Jewelry Expert
+                    </a>
+                  </div>
+                  
+                  {/* Conversion Optimization Badges */}
+                  <div className="flex flex-col items-center gap-3 pt-6 pb-2 text-xs font-body text-muted-foreground uppercase tracking-wider">
+                    <div className="flex items-center gap-2">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      <span>Secure Razorpay Payments</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gold"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+                      <span>Free Shipping Above ₹999</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                      <span>Easy Returns</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+                      <span>Premium Quality</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

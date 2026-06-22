@@ -254,7 +254,7 @@ const Checkout = () => {
       const finalAmount = totalPrice + shippingCharge;
 
       const selectedAddress = addresses.find(a => a.id === selectedAddressId);
-      const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_Sb16AhWMZG3LSJ";
+      const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID || "";
 
       if (!RAZORPAY_KEY) {
         throw new Error("Razorpay Key ID is not configured.");

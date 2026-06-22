@@ -31,137 +31,12 @@ const CartSidebar = () => {
   }, []);
 
   const handleCheckout = async () => {
-    if (!user) {
-      closeCart();
-      toast.error("Please sign in to place an order");
-      navigate("/auth");
-      return;
-    }
-
     if (totalPrice <= 0) {
       toast.error("Your cart is empty");
       return;
     }
-
-    setPlacing(true);
-    try {
-      // 1. Create order on backend
-      const { data: order } = await axios.post("/api/create-order", {
-        amount: totalPrice,
-        currency: "INR",
-        receipt: `order_rcpt_${Date.now()}`,
-      });
-
-      // 2. Open Razorpay Checkout
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_Sb16AhWMZG3LSJ",
-        amount: order.amount,
-        currency: order.currency,
-        name: "Unique Jewellery Studio",
-        description: "Premium Handcrafted Jewellery",
-        order_id: order.id,
-        handler: async function (response: any) {
-          try {
-            // 3. Verify payment signature backend-side before writing order
-            const { data: verifyResult } = await axios.post("/api/verify-payment", {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            });
-
-            if (!verifyResult.verified) {
-              toast.error("Payment verification failed. Please contact support with Payment ID: " + response.razorpay_payment_id);
-              setPlacing(false);
-              return;
-            }
-
-            // 4. Save verified order to Firestore
-            await addDoc(collection(db, "orders"), {
-              userId: user.uid,
-              userEmail: user.email,
-              userName: profile?.name || user.displayName || user.email,
-              items: items.map(({ product, quantity, variantId, variantName }) => {
-                const variant = variantId && product.variants ? product.variants.find(v => v.id === variantId) : null;
-                return {
-                  productId: product.id,
-                  variantId: variantId || null,
-                  variantName: variantName || null,
-                  name: product.name,
-                  price: variant?.price ?? product.discountPrice ?? product.price,
-                  originalPrice: product.price,
-                  image: variant?.images?.[0] || product.images?.[0] || product.image,
-                  quantity,
-                };
-              }),
-              totalAmount: totalPrice,
-              razorpayOrderId: response.razorpay_order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              paymentId: response.razorpay_payment_id,
-              status: "paid",
-              createdAt: serverTimestamp(),
-            });
-
-            // 4. Update stock in Firestore 
-            try {
-              const batch = writeBatch(db);
-              items.forEach((item) => {
-                const productRef = doc(db, "products", item.product.id);
-                
-                if (item.variantId && item.product.variants) {
-                  // Decrement stock in the variants array
-                  const updatedVariants = item.product.variants.map(v => {
-                    if (v.id === item.variantId && v.stock !== undefined) {
-                      return { ...v, stock: Math.max(0, v.stock - item.quantity) };
-                    }
-                    return v;
-                  });
-                  batch.update(productRef, { variants: updatedVariants });
-                } else {
-                  // Decrement master stock
-                  batch.update(productRef, {
-                    stock: increment(-item.quantity),
-                  });
-                }
-              });
-              await batch.commit();
-            } catch (stockErr) {
-              console.warn("Stock update failed (order was saved successfully):", stockErr);
-              // Stock will be reconciled by admin — order is already recorded
-            }
-
-            clearCart();
-            closeCart();
-            toast.success("✨ Payment successful! Order placed.", {
-              action: { label: "My Orders", onClick: () => navigate("/my-orders") },
-            });
-          } catch (err) {
-            console.error("Failed to save order after payment:", err);
-            toast.error("Payment was successful but we failed to record your order. Please contact support with Payment ID: " + response.razorpay_payment_id);
-          } finally {
-            setPlacing(false);
-          }
-        },
-        prefill: {
-          name: profile?.name || user.displayName || "",
-          email: user.email || "",
-        },
-        theme: {
-          color: "#D4AF37",
-        },
-        modal: {
-          ondismiss: function() {
-            setPlacing(false);
-          }
-        }
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch (error: any) {
-      console.error("Order initiation failed:", error);
-      toast.error("Failed to initiate payment: " + (error.response?.data?.error || error.message));
-      setPlacing(false);
-    }
+    closeCart();
+    navigate("/checkout");
   };
 
   if (!isOpen) return null;
@@ -244,8 +119,20 @@ const CartSidebar = () => {
                 disabled={placing}
                 className="w-full bg-gold text-primary-foreground py-3 rounded-sm font-body font-medium tracking-wide uppercase btn-glow disabled:opacity-70"
               >
-                {placing ? "Placing Order..." : "Place Order"}
+                Proceed to Checkout
               </button>
+              
+              <div className="pt-2 text-center">
+                <a 
+                  href="https://wa.me/919529707370" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-xs text-muted-foreground hover:text-gold transition-colors inline-flex items-center gap-1.5"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  Need Assistance? Chat with our Jewelry Expert
+                </a>
+              </div>
             </div>
           </>
         )}

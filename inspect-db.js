@@ -3,7 +3,7 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCQyGmqPwOE08baGIhvm9slnYvX43oIyqI",
+  apiKey: process.env.FIREBASE_API_KEY || "",
   authDomain: "www.theujs.com",
   projectId: "unique-jewelry-studio",
   storageBucket: "unique-jewelry-studio.firebasestorage.app",

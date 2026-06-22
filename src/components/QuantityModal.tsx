@@ -11,9 +11,13 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   triggerRect: DOMRect | null;
+  variantId?: string;
+  variantName?: string;
+  price?: number;
+  image?: string;
 }
 
-const QuantityModal: React.FC<Props> = ({ product, isOpen, onClose, triggerRect }) => {
+const QuantityModal: React.FC<Props> = ({ product, isOpen, onClose, triggerRect, variantId, variantName, price, image }) => {
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
   const { addToCart, openCart } = useCart();
@@ -21,14 +25,15 @@ const QuantityModal: React.FC<Props> = ({ product, isOpen, onClose, triggerRect 
   const { triggerFlyAnimation } = useFlyAnimation();
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const displayPrice = product.discountPrice ?? product.price;
-  const originalPrice = product.discountPrice ? product.price : null;
+  const displayPrice = price ?? product.discountPrice ?? product.price;
+  const originalPrice = price ? null : (product.discountPrice ? product.price : null);
   const discount =
     originalPrice && product.discountPrice
       ? Math.round(((originalPrice - product.discountPrice) / originalPrice) * 100)
       : 0;
 
   const displayImage =
+    image ||
     product.media?.[0]?.medium ||
     product.images?.[0] ||
     product.image ||
@@ -48,7 +53,7 @@ const QuantityModal: React.FC<Props> = ({ product, isOpen, onClose, triggerRect 
     
     // Play sequence: fly -> bounce -> toast -> drawer
     // 0ms: Add to cart state
-    addToCart(product, quantity);
+    addToCart(product, quantity, variantId, variantName);
 
     // 300ms: Fly animation
     setTimeout(() => {

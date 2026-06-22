@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Minus,
   Plus,
@@ -17,7 +17,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import SEO from "@/components/SEO";
-import AddToCartButton from "@/components/AddToCartButton";
+import QuantityModal from "@/components/QuantityModal";
 import TrustBadges from "@/components/TrustBadges";
 import GoogleReviews from "@/components/GoogleReviews";
 import { useProduct, useProducts } from "@/hooks/useProducts";
@@ -186,6 +186,8 @@ const ProductDetail = () => {
 
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const btnRef = useRef<HTMLButtonElement>(null);
   const [isFavorite, setIsFavorite] = useState(false); 
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -565,33 +567,17 @@ const ProductDetail = () => {
 
                 {!isOutOfStock && (
                   <div className="flex items-stretch gap-4 h-14">
-                    {/* Quantity */}
-                    <div className="flex items-center rounded-xl border border-[#dee2e6] bg-white w-32 shrink-0 overflow-hidden shadow-sm">
-                      <button
-                        onClick={() => setQty(Math.max(1, qty - 1))}
-                        className="flex-1 flex items-center justify-center h-full hover:bg-[#f8f9fa] transition-colors text-[#495057]"
-                        disabled={qty <= 1}
-                      >
-                        <Minus size={16} />
-                      </button>
-                      <span className="w-10 text-center font-heading font-bold text-lg text-[#2c3e50] select-none">{qty}</span>
-                      <button
-                        onClick={() => setQty(Math.min(currentStock || 99, qty + 1))}
-                        className="flex-1 flex items-center justify-center h-full hover:bg-[#f8f9fa] transition-colors text-[#495057]"
-                        disabled={qty >= (currentStock || 99)}
-                      >
-                        <Plus size={16} />
-                      </button>
-                    </div>
-
-                    {/* Add to Cart — animated button with toast */}
-                    <AddToCartButton
-                      product={product}
-                      variantId={selectedVariantId || undefined}
-                      variantName={currentVariant?.colorName}
-                      price={currentPrice}
-                      className="flex-1 h-full rounded-xl font-heading font-bold tracking-[0.1em] text-sm shadow-lg shadow-black/10"
-                    />
+                    {/* Add to Cart — triggers QuantityModal for luxury flow */}
+                    <button
+                      ref={btnRef}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setIsModalOpen(true);
+                      }}
+                      className="flex-1 h-full bg-[#2c3e50] hover:bg-[#1a252f] text-white rounded-xl font-heading font-bold tracking-[0.1em] text-sm shadow-lg shadow-black/10 transition-colors"
+                    >
+                      ADD TO CART
+                    </button>
                   </div>
                 )}
 
@@ -703,6 +689,17 @@ const ProductDetail = () => {
       </div>
 
       <Footer />
+
+      <QuantityModal 
+        product={product} 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        triggerRect={btnRef.current?.getBoundingClientRect() || null}
+        variantId={selectedVariantId || undefined}
+        variantName={currentVariant?.colorName}
+        price={currentPrice}
+        image={images[activeImage]}
+      />
     </div>
   );
 };

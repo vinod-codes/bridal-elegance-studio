@@ -180,55 +180,7 @@ const SingleCartToast: React.FC<{
 
 /* ── Toast Container ───────────────────────────────────── */
 const CartToastContainer: React.FC = () => {
-  const { toasts, removeCartToast } = useCartToast();
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 640);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  if (toasts.length === 0) return null;
-
-  const containerStyle: React.CSSProperties = isMobile
-    ? {
-        position: "fixed",
-        bottom: 16,
-        left: 16,
-        right: 16,
-        zIndex: 10001,
-        display: "flex",
-        flexDirection: "column",
-        gap: 8,
-        pointerEvents: "none",
-        alignItems: "stretch",
-      }
-    : {
-        position: "fixed",
-        top: 20,
-        right: 20,
-        zIndex: 10001,
-        display: "flex",
-        flexDirection: "column",
-        gap: 8,
-        pointerEvents: "none",
-        alignItems: "flex-end",
-      };
-
-  return (
-    <div style={containerStyle}>
-      {toasts.map((t) => (
-        <SingleCartToast
-          key={t.id}
-          toast={t}
-          onRemove={removeCartToast}
-          isMobile={isMobile}
-        />
-      ))}
-    </div>
-  );
+  return null;
 };
 
 export default CartToastContainer;

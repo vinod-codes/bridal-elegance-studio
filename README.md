@@ -83,9 +83,9 @@ When checking out or verifying shipment regions, the app communicates with the r
 Create a `.env` file in the root directory:
 
 ```env
-VITE_RAZORPAY_KEY_ID=rzp_test_Sb16AhWMZG3LSJ
-RAZORPAY_KEY_ID=rzp_test_Sb16AhWMZG3LSJ
-RAZORPAY_KEY_SECRET=5soOEsAbwZY7xd15STBPluv6
+VITE_RAZORPAY_KEY_ID=rzp_test_YOUR_KEY_HERE
+RAZORPAY_KEY_ID=rzp_test_YOUR_KEY_HERE
+RAZORPAY_KEY_SECRET=YOUR_SECRET_HERE
 ```
 
 ---
