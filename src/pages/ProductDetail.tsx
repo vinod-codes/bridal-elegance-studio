@@ -319,9 +319,7 @@ const ProductDetail = () => {
       priceCurrency: "INR",
       price: seoPrice,
       availability: (product.stock ?? 0) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      itemCondition: "https://schema.org/NewCondition",
     },
-    aggregateRating: { "@type": "AggregateRating", ratingValue: "4.8", reviewCount: "120" },
   } : null;
 
   return (
@@ -422,16 +420,18 @@ const ProductDetail = () => {
                   {product.name}
                 </h1>
 
-                {/* Ratings Strip */}
+                {/* Ratings Strip - Hidden until real reviews are implemented */}
+                {/* 
                 <div className="flex items-center gap-4 pt-2">
                   <div className="flex items-center gap-1.5 bg-[#f8f9fa] border border-[#e9ecef] px-3 py-1.5 rounded-lg">
-                    <span className="text-sm font-bold text-[#2c3e50]">{avgRating}</span>
+                    <span className="text-sm font-bold text-[#2c3e50]">4.8</span>
                     <Star size={14} className="fill-[#e67586] text-[#e67586]" />
                   </div>
                   <a href="#reviews" className="text-sm text-[#7f8c8d] font-body hover:text-[#2c3e50] transition-colors underline underline-offset-4 decoration-[#dee2e6]">
-                    See all {(totalRatings / 1000).toFixed(1)}k reviews
+                    See all 2.4k reviews
                   </a>
-                </div>
+                </div> 
+                */}
               </div>
 
               {/* Pricing Block */}
@@ -633,37 +633,6 @@ const ProductDetail = () => {
 
             </div>
           </div>
-        </div>
-
-        {/* ─── Ratings & Analytics Section ─── */}
-        <section id="reviews" className="mt-24 pt-16 border-t border-[#e9ecef]">
-          <div className="flex items-center gap-4 mb-10">
-            <h2 className="text-2xl lg:text-3xl font-heading font-medium uppercase tracking-tight text-[#2c3e50]">Customer Feedback</h2>
-            <div className="h-[2px] flex-1 bg-gradient-to-r from-[#e9ecef] to-transparent" />
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-[#f8f9fa] border border-[#e9ecef] rounded-3xl p-8 hover:shadow-lg transition-shadow">
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-10">
-                <DonutChart />
-                <div className="w-full max-w-sm">
-                  <h4 className="text-xs font-bold uppercase tracking-widest text-[#2c3e50] mb-4 text-center sm:text-left">Rating Distribution</h4>
-                  <RatingBars />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white border border-[#e9ecef] rounded-3xl p-8 hover:shadow-lg transition-shadow">
-              <h4 className="text-xs font-bold uppercase tracking-widest text-[#2c3e50] mb-8 text-center sm:text-left">Quality Metrics</h4>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 justify-items-center">
-                {qualityMetrics.map((m) => (
-                  <MiniRadial key={m.label} label={m.label} value={m.value} color={m.color} />
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Related Products Section */}
         {related.length > 0 && (
           <section className="mt-24 pt-16 border-t border-[#e9ecef]">

@@ -7,6 +7,7 @@ import {
   where,
   orderBy,
   Timestamp,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
 
@@ -76,16 +77,15 @@ export function useProducts() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simple query: only where("isVisible","==",true) — NO composite index required.
-    // Sorting by createdAt is done client-side to avoid needing a Firestore composite index.
-    const q = query(
-      collection(db, "products"),
-      where("isVisible", "==", true)
-    );
-
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
+    let isMounted = true;
+    
+    async function fetchProducts() {
+      try {
+        const q = query(
+          collection(db, "products"),
+          where("isVisible", "==", true)
+        );
+        const snapshot = await getDocs(q);
         const mapped = mapSnapshotToProducts(snapshot);
         // Sort newest first client-side
         mapped.sort((a, b) => {
@@ -93,17 +93,25 @@ export function useProducts() {
           const bTime = (b.createdAt as any)?.toDate?.()?.getTime?.() ?? 0;
           return bTime - aTime;
         });
-        setProducts(mapped);
-        setLoading(false);
-      },
-      (err) => {
-        console.error("Product list listener failed", err);
-        setError(err instanceof Error ? err.message : "Unable to load products");
-        setLoading(false);
+        
+        if (isMounted) {
+          setProducts(mapped);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Product list fetch failed", err);
+        if (isMounted) {
+          setError(err instanceof Error ? err.message : "Unable to load products");
+          setLoading(false);
+        }
       }
-    );
-
-    return () => unsubscribe();
+    }
+    
+    fetchProducts();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return { products, loading, error };

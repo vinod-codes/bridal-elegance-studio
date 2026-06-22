@@ -11,6 +11,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { CartToastProvider } from "@/context/CartToastContext";
 import CartDrawer from "@/components/CartDrawer";
 import { FlyAnimationProvider } from "@/context/FlyAnimationContext";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const Index = lazy(() => import("./pages/Index.tsx"));
 const Shop = lazy(() => import("./pages/Shop.tsx"));
@@ -58,8 +59,9 @@ const PageLoader = () => (
 );
 
 const App = () => (
-  <HelmetProvider>
-    <QueryClientProvider client={queryClient}>
+  <ErrorBoundary>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
       <TooltipProvider>
       <AuthProvider>
         <CartProvider>
@@ -107,8 +109,9 @@ const App = () => (
         </CartProvider>
       </AuthProvider>
     </TooltipProvider>
-  </QueryClientProvider>
-  </HelmetProvider>
+    </QueryClientProvider>
+    </HelmetProvider>
+  </ErrorBoundary>
 );
 
 export default App;
