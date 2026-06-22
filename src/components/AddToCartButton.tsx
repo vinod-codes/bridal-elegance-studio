@@ -73,7 +73,7 @@ const AddToCartButton: React.FC<Props> = ({
       showCartToast(
         product,
         variantName,
-        price ?? product.discountPrice ?? product.price
+        Number(price ?? product.discountPrice ?? product.price ?? 0)
       );
 
       setTimeout(() => setStatus("idle"), 1600);
