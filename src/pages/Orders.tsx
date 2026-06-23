@@ -10,6 +10,7 @@ import { Timestamp } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { OrderStatusTracker, OrderStatus } from "@/components/OrderStatusTracker";
+import SEO from "@/components/SEO";
 
 interface OrderItem {
   name: string;
@@ -92,6 +93,13 @@ const Orders = () => {
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">
+      {/* Account page — private, never indexed */}
+      <SEO
+        title="My Orders | Unique Jewelry Studio"
+        description="View your order history and track shipments."
+        path="/my-orders"
+        noindex
+      />
       <Header />
       <main className="flex-grow max-w-4xl mx-auto w-full px-4 py-32">
         <div className="flex flex-col gap-2 mb-12">

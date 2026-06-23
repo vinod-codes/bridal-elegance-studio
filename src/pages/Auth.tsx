@@ -18,6 +18,7 @@ import { Mail, Lock, ChevronRight, Sparkles, User, ArrowLeft } from 'lucide-reac
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import authLogo from '@/assets/products-page-logo.png';
+import SEO from '@/components/SEO';
 
 const GoogleIcon = () => (
     <svg viewBox="0 0 24 24" className="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg">
@@ -250,6 +251,13 @@ const Auth = () => {
 
     return (
         <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden selection:bg-gold/30">
+            {/* Auth pages are private — never indexed */}
+            <SEO
+                title="Sign In | Unique Jewelry Studio"
+                description="Sign in to your Unique Jewelry Studio account."
+                path="/auth"
+                noindex
+            />
             {/* Minimalist Background Ambience */}
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-gold/5 rounded-full blur-[140px]"></div>
