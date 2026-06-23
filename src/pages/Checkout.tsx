@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, MapPin, Truck, MapPinOff, Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { db } from "../config/firebase";
+import { db, auth } from "../config/firebase";
 import { collection, addDoc, getDocs, query, where, serverTimestamp, doc, updateDoc, increment, writeBatch, getDoc, onSnapshot } from "firebase/firestore";
 import axios from "axios";
 import { toast } from "sonner";
@@ -300,9 +300,17 @@ const Checkout = () => {
 
       // 2. Create Razorpay order on backend (HMAC-signed, tamper-proof, auth-protected)
       const API_URL = import.meta.env.VITE_API_URL || "";
-      // Attach Firebase ID token — backend verifyFirebaseToken middleware requires this
+      // Read the live Firebase user instead of the React-state `user` (which can be
+      // stale inside this async closure if onAuthStateChanged fires null during the
+      // flow, e.g. the inactivity timer). auth.currentUser is always current.
+      const liveUser = auth.currentUser;
+      if (!liveUser) {
+        toast.error("Your session expired. Please sign in again.");
+        navigate("/auth", { state: { redirectTo: "/checkout" } });
+        return;
+      }
       // Force refresh to ensure the token is not stale or near expiry.
-      const idToken = user ? await user.getIdToken(true) : "";
+      const idToken = await liveUser.getIdToken(true);
       const { data: razorpayOrder } = await axios.post(`${API_URL}/api/create-order`, {
         amount: finalAmount,
         currency: "INR",
@@ -327,8 +335,15 @@ const Checkout = () => {
           try {
             // 3. Verify signature and create order backend-side
             const API_URL = import.meta.env.VITE_API_URL || "";
-            // Re-fetch a fresh token in case the popup was open for a while
-            const verifyToken = user ? await user.getIdToken(true) : "";
+            // Re-read the live Firebase user — the popup may have been open for a while
+            // and the React-state `user` captured in this closure can be stale.
+            const liveUser = auth.currentUser;
+            if (!liveUser) {
+              toast.error("Your session expired during payment. Your payment was processed — please contact support with payment ID: " + response.razorpay_payment_id);
+              return;
+            }
+            // Force-refresh in case the token aged during the checkout flow.
+            const verifyToken = await liveUser.getIdToken(true);
             const { data: verifyResult } = await axios.post(`${API_URL}/api/verify-payment`, {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
