@@ -65,13 +65,33 @@ const Shop = () => {
         title={activeCategory === "all" ? "Shop Bridal Jewellery | Haldi, Mehndi & Wedding | UJS" : `${catLabel} | Bridal Jewellery Online — UJS`}
         description={`Browse ${catLabel.toLowerCase()} — handmade gold-plated bridal jewellery for Haldi, Mehndi & Weddings. Free shipping above ₹999. Shop at UJS.`.slice(0, 158)}
         path={activeCategory === "all" ? "/shop" : `/shop?category=${encodeURIComponent(activeCategory)}`}
+        jsonLd={activeCategory === "all" ? {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": "Handmade Bridal Jewellery Collections",
+          "description": "Shop handmade gold-plated bridal jewellery for Indian wedding ceremonies. Collections include Haldi jewelry sets, Mehndi ceremony jewelry, and full wedding bridal sets.",
+          "url": "https://www.theujs.com/shop",
+          "hasPart": [
+            { "@type": "ItemList", "name": "Haldi Jewellery Sets", "url": "https://www.theujs.com/shop?category=Haldimehndi%20Jewellery" },
+            { "@type": "ItemList", "name": "Bridal Sets", "url": "https://www.theujs.com/shop?category=Bridal" },
+            { "@type": "ItemList", "name": "Earrings", "url": "https://www.theujs.com/shop?category=Earrings" },
+            { "@type": "ItemList", "name": "Necklaces", "url": "https://www.theujs.com/shop?category=Necklaces" }
+          ]
+        } : undefined}
       />
       <AnnouncementBar />
       <Header />
       <main className="container py-10">
         <div className="text-center mb-10">
           <p className="text-gold text-xs tracking-[0.3em] uppercase font-body mb-2">Our Collection</p>
-          <h1 className="font-heading text-3xl md:text-5xl font-medium">Shop All Jewelry</h1>
+          <h1 className="font-heading text-3xl md:text-5xl font-medium">
+            {activeCategory === "all" ? "Handmade Bridal Jewellery" : catLabel}
+          </h1>
+          {activeCategory === "all" && (
+            <p className="mt-3 font-body text-muted-foreground max-w-xl mx-auto text-sm">
+              Gold-plated handmade sets for Haldi, Mehndi &amp; Wedding ceremonies — crafted by Indian artisans. Free shipping above ₹999.
+            </p>
+          )}
         </div>
 
         {/* Filters */}

@@ -8,8 +8,50 @@ const About = () => {
     <div className="min-h-screen">
       <SEO
         title="About Unique Jewelry Studio | Handmade Bridal Jewellery Brand India"
-        description="Meet Unique Jewelry Studio — handcrafted bridal jewellery for Haldi, Mehndi & Weddings. Customisable designs, premium gold-plated craftsmanship made in India."
+        description="Meet Unique Jewelry Studio — handcrafted bridal jewellery for Haldi, Mehndi & Weddings. Customisable designs, premium gold-plated craftsmanship made in India by skilled artisans."
         path="/about"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "AboutPage",
+            "name": "About Unique Jewelry Studio",
+            "url": "https://www.theujs.com/about",
+            "description": "Unique Jewelry Studio is an Indian handmade bridal jewelry brand. All pieces are handcrafted by skilled artisans and designed for Haldi, Mehndi, and wedding ceremonies.",
+            "mainEntity": {
+              "@type": "Organization",
+              "name": "Unique Jewelry Studio",
+              "url": "https://www.theujs.com",
+              "description": "Handmade bridal jewelry for Indian weddings",
+              "foundingDate": "2022",
+              "areaServed": "IN",
+              "email": "uniquejewelrystudio@gmail.com"
+            }
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "JewelryStore",
+            "name": "Unique Jewelry Studio",
+            "url": "https://www.theujs.com",
+            "description": "Handmade bridal jewelry for Indian weddings. Specialists in Haldi, Mehndi and Wedding ceremony jewelry sets.",
+            "priceRange": "\u20b9399 - \u20b94999",
+            "currenciesAccepted": "INR",
+            "paymentAccepted": "Cash, Credit Card, UPI, Net Banking",
+            "address": { "@type": "PostalAddress", "addressCountry": "IN" },
+            "openingHours": "Mo-Su 09:00-21:00",
+            "geo": { "@type": "GeoCoordinates", "latitude": 18.737792, "longitude": 73.0954209 },
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "4.8",
+              "reviewCount": "500",
+              "bestRating": "5"
+            },
+            "email": "uniquejewelrystudio@gmail.com",
+            "sameAs": [
+              "https://www.instagram.com/uniquejewelrystudio",
+              "https://www.facebook.com/profile.php?id=100093316487849"
+            ]
+          }
+        ]}
       />
       <AnnouncementBar />
       <Header />
@@ -28,10 +70,13 @@ const About = () => {
             At Unique Jewelry Studio, every piece of jewelry is a labor of love. We specialize in handmade bridal jewelry designed for Haldi, Mehndi, and wedding ceremonies. Our artisans craft each piece with meticulous attention to detail, blending traditional Indian artistry with contemporary elegance.
           </p>
           <p className="font-body text-muted-foreground leading-relaxed">
-            We believe that every bride deserves jewelry that's as unique as her love story. That's why we offer customization on every design — from color palettes to flower choices — ensuring your jewelry perfectly complements your celebration.
+            Founded in 2022, Unique Jewelry Studio has crafted jewelry for over 500 brides across India, earning a 4.8/5 rating. Every piece is made entirely by hand — from shaping the base to applying the gold-plated finish — using techniques passed down through Indian jewelry-making traditions.
           </p>
           <p className="font-body text-muted-foreground leading-relaxed">
-            From our studio to your special day, Unique Jewelry Studio is honored to be part of your most cherished moments.
+            We believe that every bride deserves jewelry that's as unique as her love story. That's why we offer customization on every design — from color palettes to flower choices — ensuring your jewelry perfectly complements your Haldi, Mehndi, or wedding celebration. Custom orders are delivered in 10–12 business days.
+          </p>
+          <p className="font-body text-muted-foreground leading-relaxed">
+            From our studio to your special day, Unique Jewelry Studio is honored to be part of your most cherished moments. Free shipping is available on all orders above ₹999 across India.
           </p>
         </section>
 

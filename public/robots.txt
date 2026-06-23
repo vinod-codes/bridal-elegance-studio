@@ -12,15 +12,42 @@ Disallow: /auth/
 Disallow: /*.json$
 Disallow: /images/products/*?size=
 
+# Google (search + AI Overviews + Gemini)
 User-agent: Googlebot
+Allow: /
+
+User-agent: Google-Extended
 Allow: /
 
 User-agent: Googlebot-Image
 Allow: /images/
 
+# OpenAI / ChatGPT
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+
+# Anthropic / Claude
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+# Microsoft Copilot / Bing
 User-agent: bingbot
 Allow: /
 
+User-agent: Bingbot
+Allow: /
+
+# SEO tools
 User-agent: AhrefsBot
 Allow: /
 
