@@ -339,7 +339,14 @@ const Checkout = () => {
             // and the React-state `user` captured in this closure can be stale.
             const liveUser = auth.currentUser;
             if (!liveUser) {
-              toast.error("Your session expired during payment. Your payment was processed — please contact support with payment ID: " + response.razorpay_payment_id);
+              // Session expired while Razorpay popup was open.
+              // The webhook safety-net will auto-recover the order — inform the user.
+              toast.info(
+                "✅ Payment received! Your session refreshed — your order is being confirmed automatically. Check 'My Orders' in a few minutes. Payment ID: " + response.razorpay_payment_id,
+                { duration: 10000 }
+              );
+              clearCart();
+              navigate("/orders", { replace: true });
               return;
             }
             // Force-refresh in case the token aged during the checkout flow.
@@ -375,9 +382,24 @@ const Checkout = () => {
             } catch {}
             toast.success("✨ Payment successful!");
             navigate(`/order-success/${verifyResult.orderId}`, { replace: true });
-          } catch (err) {
+          } catch (err: any) {
             console.error("Firestore post-payment error:", err);
-            toast.error("Payment successful but failed to save order. Please contact support at uniquejewelrystudio@gmail.com with payment ID: " + response.razorpay_payment_id);
+            // If it's a 401 (session expired mid-payment), the webhook safety net recovers the order.
+            // Show a reassuring message and redirect to Orders page.
+            const isAuthError = err?.response?.status === 401;
+            if (isAuthError) {
+              toast.info(
+                "✅ Payment received! Your session expired during checkout — your order is being auto-confirmed. Check 'My Orders' shortly. Payment ID: " + response.razorpay_payment_id,
+                { duration: 10000 }
+              );
+              clearCart();
+              navigate("/orders", { replace: true });
+            } else {
+              toast.error(
+                "Payment captured but order save failed. Our system will auto-recover it shortly. Payment ID: " + response.razorpay_payment_id,
+                { duration: 10000 }
+              );
+            }
           }
         },
         prefill: {
