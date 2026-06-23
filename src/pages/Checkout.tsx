@@ -242,6 +242,13 @@ const Checkout = () => {
       return;
     }
 
+    // ── Explicit auth guard (defensive): backend requires login ──
+    if (!user) {
+      toast.error("Please sign in to place an order.");
+      navigate("/auth", { state: { redirectTo: "/checkout" } });
+      return;
+    }
+
     try { trackBeginCheckout(items as any, totalPrice); trackAddShippingInfo(totalPrice); trackAddPaymentInfo(totalPrice, "razorpay"); } catch {}
     setIsPlacingOrder(true);
     try {
@@ -294,7 +301,8 @@ const Checkout = () => {
       // 2. Create Razorpay order on backend (HMAC-signed, tamper-proof, auth-protected)
       const API_URL = import.meta.env.VITE_API_URL || "";
       // Attach Firebase ID token — backend verifyFirebaseToken middleware requires this
-      const idToken = user ? await user.getIdToken() : "";
+      // Force refresh to ensure the token is not stale or near expiry.
+      const idToken = user ? await user.getIdToken(true) : "";
       const { data: razorpayOrder } = await axios.post(`${API_URL}/api/create-order`, {
         amount: finalAmount,
         currency: "INR",
@@ -319,6 +327,8 @@ const Checkout = () => {
           try {
             // 3. Verify signature and create order backend-side
             const API_URL = import.meta.env.VITE_API_URL || "";
+            // Re-fetch a fresh token in case the popup was open for a while
+            const verifyToken = user ? await user.getIdToken(true) : "";
             const { data: verifyResult } = await axios.post(`${API_URL}/api/verify-payment`, {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
@@ -326,6 +336,8 @@ const Checkout = () => {
               pendingOrderId: pendingOrderId,
               orderData: orderData,
               items: orderItems
+            }, {
+              headers: { Authorization: `Bearer ${verifyToken}` }
             });
 
             if (!verifyResult.verified) {
@@ -375,7 +387,9 @@ const Checkout = () => {
       rzp.open();
     } catch (error: any) {
       console.error("Razorpay initiation failed:", error);
-      toast.error("Failed to initiate payment: " + (error.response?.data?.error || error.message));
+      // Backend returns { success: false, message: "..." }, not { error: "..." }
+      const backendMsg = error.response?.data?.message || error.response?.data?.error || error.message;
+      toast.error("Failed to initiate payment: " + backendMsg);
     } finally {
       setIsPlacingOrder(false);
     }
