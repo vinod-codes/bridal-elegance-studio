@@ -58,7 +58,20 @@ const PageLoader = () => (
   </div>
 );
 
-const App = () => (
+const App = () => {
+  // ── Prerender signal ──
+  // vite-plugin-prerender's PuppeteerRenderer waits for the 'prerender-ready' event
+  // before capturing HTML. We fire it after first mount + a tick, which gives
+  // react-helmet-async time to flush <head> tags and lazy-loaded routes time to
+  // resolve. The 5s renderAfterTime in vite.config.ts is a safety net.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      window.dispatchEvent(new Event("prerender-ready"));
+    }, 1500);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
   <ErrorBoundary>
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
@@ -81,7 +94,7 @@ const App = () => (
                   <Route path="/" element={<Index />} />
                   <Route path="/shop" element={<Shop />} />
                   <Route path="/categories" element={<Categories />} />
-                  
+
                   {/* Collections */}
                   <Route path="/collections/haldi-jewellery" element={<HaldiPage />} />
                   <Route path="/collections/mehndi-jewellery" element={<MehndiPage />} />
@@ -112,6 +125,7 @@ const App = () => (
     </QueryClientProvider>
     </HelmetProvider>
   </ErrorBoundary>
-);
+  );
+};
 
 export default App;
